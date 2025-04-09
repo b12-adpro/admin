@@ -1,10 +1,10 @@
-package id.ac.ui.cs.advprog.gatherlove;
+package id.ac.ui.cs.advprog.admin;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GatherLoveApplicationTests {
+class AdminApplicationTests {
 
     @Test
     void contextLoads() {
