@@ -45,9 +45,6 @@ public class User {
     @OneToMany(mappedBy = "donatur")
     private List<Donation> donations;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Wallet wallet;
-
     @NotNull
     @ManyToMany(mappedBy = "recipients")
     private List<Notification> notifications;
