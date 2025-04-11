@@ -32,7 +32,7 @@ class CampaignRepositoryTest {
         fundraiser.setEmail("john@example.com");
         fundraiser.setPassword("password");
         fundraiser.setRole(UserRole.FUNDRAISER);
-        fundraiser = userRepository.save(fundraiser); // ✅ SAVE dulu
+        fundraiser = userRepository.save(fundraiser);
 
         Campaign campaign = new Campaign();
         campaign.setTitle("Bantu Anak Yatim");
@@ -43,7 +43,7 @@ class CampaignRepositoryTest {
         campaign.setStatus(CampaignStatus.PENDING);
         campaign.setStartDate(LocalDate.now());
         campaign.setEndDate(LocalDate.now().plusDays(30));
-        campaign = campaignRepository.save(campaign); // ✅ SAVE dulu
+        campaign = campaignRepository.save(campaign);
 
         Optional<Campaign> result = campaignRepository.findById(campaign.getId());
 
