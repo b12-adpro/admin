@@ -16,7 +16,6 @@ public class DonationTest {
     void setUp() {
         this.donation = new Donation();
         this.donation.setId(1L);
-        this.donation.setDonorId(100L);
         this.donation.setCampaign(new Campaign());
         this.donation.getCampaign().setId(3L);
         this.donation.setDonatur(new User());
@@ -45,11 +44,6 @@ public class DonationTest {
     @Test
     void testGetId() {
         assertEquals(1L, donation.getId());
-    }
-
-    @Test
-    void testGetDonorId() {
-        assertEquals(100L, donation.getDonorId());
     }
 
     @Test
