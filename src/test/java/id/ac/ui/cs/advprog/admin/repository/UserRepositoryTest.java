@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,14 +19,21 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    private User createTestUser(String username, String email, UserRole role, boolean isBlocked) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword("test123"); // Required field
+        user.setNotifications(new ArrayList<>()); // Required field
+        user.setRole(role);
+        user.setBlocked(isBlocked);
+        return user;
+    }
+
     @Test
     @DisplayName("Should find user by username")
     void testFindByUsername() {
-        User user = new User();
-        user.setUsername("john_doe");
-        user.setEmail("john@example.com");
-        user.setRole(UserRole.FUNDRAISER);
-        user.setBlocked(false);
+        User user = createTestUser("john_doe", "john@example.com", UserRole.FUNDRAISER, false);
         userRepository.save(user);
 
         Optional<User> found = userRepository.findByUsername("john_doe");
@@ -36,11 +44,7 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should find user by email")
     void testFindByEmail() {
-        User user = new User();
-        user.setUsername("jane_doe");
-        user.setEmail("jane@example.com");
-        user.setRole(UserRole.DONATUR);
-        user.setBlocked(false);
+        User user = createTestUser("jane_doe", "jane@example.com", UserRole.DONATUR, false);
         userRepository.save(user);
 
         Optional<User> found = userRepository.findByEmail("jane@example.com");
@@ -51,17 +55,8 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should find users by role")
     void testFindByRole() {
-        User user1 = new User();
-        user1.setUsername("user1");
-        user1.setEmail("user1@example.com");
-        user1.setRole(UserRole.DONATUR);
-        user1.setBlocked(false);
-
-        User user2 = new User();
-        user2.setUsername("user2");
-        user2.setEmail("user2@example.com");
-        user2.setRole(UserRole.DONATUR);
-        user2.setBlocked(false);
+        User user1 = createTestUser("user1", "user1@example.com", UserRole.DONATUR, false);
+        User user2 = createTestUser("user2", "user2@example.com", UserRole.DONATUR, false);
 
         userRepository.saveAll(List.of(user1, user2));
 
@@ -72,11 +67,7 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should count users by role")
     void testCountByRole() {
-        User user = new User();
-        user.setUsername("fundraiser");
-        user.setEmail("fundraiser@example.com");
-        user.setRole(UserRole.FUNDRAISER);
-        user.setBlocked(false);
+        User user = createTestUser("fundraiser", "fundraiser@example.com", UserRole.FUNDRAISER, false);
         userRepository.save(user);
 
         long count = userRepository.countByRole(UserRole.FUNDRAISER);
@@ -86,17 +77,8 @@ public class UserRepositoryTest {
     @Test
     @DisplayName("Should find users by block status")
     void testFindByIsBlocked() {
-        User blockedUser = new User();
-        blockedUser.setUsername("blocked");
-        blockedUser.setEmail("blocked@example.com");
-        blockedUser.setRole(UserRole.FUNDRAISER);
-        blockedUser.setBlocked(true);
-
-        User activeUser = new User();
-        activeUser.setUsername("active");
-        activeUser.setEmail("active@example.com");
-        activeUser.setRole(UserRole.FUNDRAISER);
-        activeUser.setBlocked(false);
+        User blockedUser = createTestUser("blocked", "blocked@example.com", UserRole.FUNDRAISER, true);
+        User activeUser = createTestUser("active", "active@example.com", UserRole.FUNDRAISER, false);
 
         userRepository.saveAll(List.of(blockedUser, activeUser));
 
