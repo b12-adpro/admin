@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.admin.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +25,6 @@ public class Donation {
     @JoinColumn(name = "donatur_id")
     private User donatur;
 
-    @NotNull
     private Double amount;
 
     private String message; // Optional message from donatur

@@ -2,7 +2,6 @@ package id.ac.ui.cs.advprog.admin.model;
 
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,11 +19,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     private String username;
-    @NotNull
+
     private String email;
-    @NotNull
+
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -45,7 +43,6 @@ public class User {
     @OneToMany(mappedBy = "donatur")
     private List<Donation> donations;
 
-    @NotNull
     @ManyToMany(mappedBy = "recipients")
     private List<Notification> notifications;
 
