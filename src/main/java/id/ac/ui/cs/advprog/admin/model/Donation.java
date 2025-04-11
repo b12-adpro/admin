@@ -18,9 +18,6 @@ public class Donation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    private Long donorId;
-
     @ManyToOne
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
