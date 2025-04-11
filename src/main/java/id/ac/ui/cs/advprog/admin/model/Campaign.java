@@ -36,12 +36,10 @@ public class Campaign {
     @NotNull(message = "End date is required")
     private LocalDate endDate;
 
-    @NotNull(message = "Campaign status is required")
     @Enumerated(EnumType.STRING)
     private CampaignStatus status;
 
     @ManyToOne
-    @NotNull(message = "Fundraiser is required")
     private User fundraiser;
 
     @OneToMany(mappedBy = "campaign")
