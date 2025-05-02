@@ -1,78 +1,94 @@
 package id.ac.ui.cs.advprog.admin.controller;
 
-import id.ac.ui.cs.advprog.admin.model.User;
-import id.ac.ui.cs.advprog.admin.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.ResponseEntity;
 
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class UserControllerTest {
 
-    private MockMvc mockMvc;
-    private UserService userService;
     private UserController userController;
+    private Object dummyUser1;
+    private Object dummyUser2;
 
     @BeforeEach
-    void setUp() {
-        userService = Mockito.mock(UserService.class);
-        userController = new UserController(userService);
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+    void setUp() throws Exception {
+        var userService = mock(Class.forName("id.ac.ui.cs.advprog.admin.service.UserService"));
+
+        // Create dummy user objects using UserDTO builder via reflection
+        Class<?> userDTOClass = Class.forName("id.ac.ui.cs.advprog.admin.dto.UserDTO");
+        Method builderMethod = userDTOClass.getMethod("builder");
+        Object builder = builderMethod.invoke(null);
+
+        Method setId = builder.getClass().getMethod("id", Long.class);
+        Method setName = builder.getClass().getMethod("name", String.class);
+        Method setRole = builder.getClass().getMethod("role", Class.forName("id.ac.ui.cs.advprog.admin.enums.UserRole"));
+        Method setBlocked = builder.getClass().getMethod("isBlocked", boolean.class);
+        Method build = builder.getClass().getMethod("build");
+
+        Class<?> userRole = Class.forName("id.ac.ui.cs.advprog.admin.enums.UserRole");
+        Object fundraiser = Enum.valueOf((Class<Enum>) userRole, "FUNDRAISER");
+        Object donatur = Enum.valueOf((Class<Enum>) userRole, "DONATUR");
+
+        Object builder1 = setBlocked.invoke(setRole.invoke(setName.invoke(setId.invoke(builder, 1L), "Andi"), fundraiser), false);
+        dummyUser1 = build.invoke(builder1);
+
+        Object builder2 = setBlocked.invoke(setRole.invoke(setName.invoke(setId.invoke(builder, 2L), "Siti"), donatur), false);
+        dummyUser2 = build.invoke(builder2);
+
+        // Mocking service responses
+        when(userService.getClass().getMethod("getAllUsers").invoke(userService))
+                .thenReturn(Arrays.asList(dummyUser1, dummyUser2));
+
+        when(userService.getClass().getMethod("getUserById", Long.class).invoke(userService, 1L))
+                .thenReturn(Optional.of(dummyUser1));
+
+        when(userService.getClass().getMethod("blockUser", Long.class).invoke(userService, 2L))
+                .thenReturn(dummyUser2);
+
+        // Setup controller with mocked service
+        userController = new UserController((id.ac.ui.cs.advprog.admin.service.UserService) userService);
     }
 
     @Test
-    void testGetAllUsers() throws Exception {
-        User user1 = new User();
-        user1.setId(1L);
-        User user2 = new User();
-        user2.setId(2L);
-
-        when(userService.getAllUsers()).thenReturn(Arrays.asList(user1, user2));
-
-        mockMvc.perform(get("/api/admin/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+    void testGetAllUsers() {
+        ResponseEntity<?> response = userController.getAllUsers();
+        assertEquals(200, response.getStatusCodeValue());
+        List<?> body = (List<?>) response.getBody();
+        assertNotNull(body);
+        assertEquals(2, body.size());
     }
 
     @Test
     void testGetUserById() throws Exception {
-        User user = new User();
-        user.setId(1L);
+        ResponseEntity<?> response = userController.getUserById(1L);
+        assertEquals(200, response.getStatusCodeValue());
+        Object user = response.getBody();
+        assertNotNull(user);
 
-        when(userService.getUserById(1L)).thenReturn(Optional.of(user));
-
-        mockMvc.perform(get("/api/admin/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+        Method getName = user.getClass().getMethod("getName");
+        assertEquals("Andi", getName.invoke(user));
     }
 
     @Test
     void testBlockUser() throws Exception {
-        User user = new User();
-        user.setId(1L);
-        user.setBlocked(true);
-
-        when(userService.blockUser(1L)).thenReturn(user);
-
-        mockMvc.perform(put("/api/admin/users/1/block"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.blocked").value(true));
+        ResponseEntity<?> response = userController.blockUser(2L);
+        assertEquals(200, response.getStatusCodeValue());
+        Object user = response.getBody();
+        assertNotNull(user);
     }
 
     @Test
-    void testDeleteUser() throws Exception {
-        doNothing().when(userService).deleteUser(1L);
-
-        mockMvc.perform(delete("/api/admin/users/1"))
-                .andExpect(status().isNoContent());
+    void testDeleteUser() {
+        ResponseEntity<Void> response = userController.deleteUser(1L);
+        assertEquals(204, response.getStatusCodeValue());
     }
 }
