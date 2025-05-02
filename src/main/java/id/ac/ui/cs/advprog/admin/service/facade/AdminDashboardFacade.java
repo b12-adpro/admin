@@ -4,33 +4,23 @@ import id.ac.ui.cs.advprog.admin.dto.AdminDashboardStatsDTO;
 import id.ac.ui.cs.advprog.admin.enums.CampaignStatus;
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
-import id.ac.ui.cs.advprog.admin.service.DonationService;
-import id.ac.ui.cs.advprog.admin.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import id.ac.ui.cs.advprog.admin.enums.ProofStatus;
+import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
 import id.ac.ui.cs.advprog.admin.service.FundUsageProofService;
+import id.ac.ui.cs.advprog.admin.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class AdminDashboardFacade {
 
     private final CampaignService campaignService;
-    private final DonationService donationService;
+    private final DonationHistoryService donationHistoryService;
     private final UserService userService;
     private final FundUsageProofService fundUsageProofService;
 
-    @Autowired
-    public AdminDashboardFacade(CampaignService campaignService,
-                                DonationService donationService,
-                                UserService userService, FundUsageProofService fundUsageProofService) {
-        this.campaignService = campaignService;
-        this.donationService = donationService;
-        this.userService = userService;
-        this.fundUsageProofService = fundUsageProofService;
-    }
-
-    public AdminDashboardStatsDTO getDashboardStatistics() {
-        int totalCampaigns = campaignService.countAllCampaigns();
+    public AdminDashboardStatsDTO getDashboardStats() {
+        long totalCampaigns = campaignService.countCampaigns();
         long pendingCampaigns = campaignService.countCampaignsByStatus(CampaignStatus.PENDING);
         long activeCampaigns = campaignService.countCampaignsByStatus(CampaignStatus.ACTIVE);
         long completedCampaigns = campaignService.countCampaignsByStatus(CampaignStatus.COMPLETED);
@@ -39,19 +29,19 @@ public class AdminDashboardFacade {
         int totalFundraisers = userService.countUsersByRole(UserRole.FUNDRAISER);
         int totalDonatur = userService.countUsersByRole(UserRole.DONATUR);
 
-        long totalDonations = donationService.getAllDonations().size();
-        long pendingProofs = fundUsageProofService.countProofsByStatus(ProofStatus.VERIFIED);
+        long totalDonations = donationHistoryService.getAllDonationHistories().size();
+
+        //TODO: totalCampaigns, pendingCampaigns, activeCampaigns, completedCampaigns, totalUsers, totalFundraisers, totalDonatur, totalDonations, pendingProofs
 
         return new AdminDashboardStatsDTO(
-                totalCampaigns,
-                pendingCampaigns,
-                activeCampaigns,
-                completedCampaigns,
-                totalUsers,
-                totalFundraisers,
-                totalDonatur,
-                totalDonations,
-                pendingProofs
+                totalCampaigns,        // totalCampaigns
+                pendingCampaigns,        // pendingCampaigns
+                activeCampaigns,        // activeCampaigns
+                completedCampaigns,        // completedCampaigns
+                totalUsers,        // totalUsers
+                totalFundraisers,        // totalFundraisers
+                totalDonatur,        // totalDonaturs
+                totalDonations     // totalDonations
         );
     }
 

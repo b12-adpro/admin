@@ -1,16 +1,10 @@
 package id.ac.ui.cs.advprog.admin.service;
 
-import id.ac.ui.cs.advprog.admin.model.Notification;
-
+import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import java.util.List;
 
 public interface NotificationService {
-    // Membuat notifikasi baru
-    Notification createNotification(String title, String content);
-
-    // Mendapatkan semua notifikasi
-    List<Notification> getAllNotifications();
-
-    // Mendapatkan notifikasi berdasarkan ID
-    Notification getNotificationById(Long id);
+    NotificationDTO createNotification(String title, String message);
+    List<NotificationDTO> getAllNotifications();
+    NotificationDTO getNotificationDTOById(Long id);
 }
