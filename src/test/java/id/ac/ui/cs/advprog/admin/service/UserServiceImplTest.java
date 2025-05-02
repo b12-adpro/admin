@@ -1,132 +1,103 @@
 package id.ac.ui.cs.advprog.admin.service;
 
+import id.ac.ui.cs.advprog.admin.dto.UserDTO;
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
-import id.ac.ui.cs.advprog.admin.model.User;
-import id.ac.ui.cs.advprog.admin.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
 
-import java.util.Arrays;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
     private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        userService = new UserServiceImpl();
     }
 
     @Test
-    @DisplayName("Should return all users")
     void testGetAllUsers() {
-        List<User> users = Arrays.asList(new User(), new User());
-        when(userRepository.findAll()).thenReturn(users);
-
-        List<User> result = userService.getAllUsers();
-
-        assertEquals(2, result.size());
-        verify(userRepository, times(1)).findAll();
+        List<?> users = userService.getAllUsers();
+        assertEquals(3, users.size());
     }
 
     @Test
-    @DisplayName("Should return user by id")
-    void testGetUserById() {
-        User user = new User();
-        user.setId(1L);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    void testGetUserById() throws Exception {
+        Optional<?> userOpt = userService.getUserById(1L);
+        assertTrue(userOpt.isPresent());
 
-        Optional<User> result = userService.getUserById(1L);
+        Object user = userOpt.get();
+        Method getName = user.getClass().getMethod("getName");
+        String name = (String) getName.invoke(user);
 
-        assertTrue(result.isPresent());
-        assertEquals(1L, result.get().getId());
+        assertEquals("Andi", name);
     }
 
     @Test
-    @DisplayName("Should block user")
-    void testBlockUser() {
-        User user = new User();
-        user.setId(1L);
-        user.setBlocked(false);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+    void testBlockExistingUser() {
+        UserDTO user = userService.blockUser(2L);
 
-        User result = userService.blockUser(1L);
-
-        assertTrue(result.isBlocked());
-        verify(userRepository, times(1)).save(user);
+        assertNotNull(user);
+        assertTrue(user.isBlocked());
     }
 
     @Test
-    @DisplayName("Should delete user by id")
+    void testBlockNonExistentUser() {
+        UserDTO user = userService.blockUser(999L);
+        assertNull(user);
+    }
+
+    @Test
+    void testIsUserBlockedNonExistent() {
+        assertFalse(userService.isUserBlocked(999L));
+    }
+
+    @Test
+    void testBlockUser() throws Exception {
+        Object user = userService.blockUser(2L);
+        Method isBlocked = user.getClass().getMethod("isBlocked");
+        boolean blocked = (boolean) isBlocked.invoke(user);
+
+        assertTrue(blocked);
+    }
+
+    @Test
     void testDeleteUser() {
-        Long id = 1L;
-        userService.deleteUser(id);
-        verify(userRepository, times(1)).deleteById(id);
+        userService.deleteUser(1L);
+        assertFalse(userService.getUserById(1L).isPresent());
+        assertEquals(2, userService.getAllUsers().size());
     }
 
     @Test
-    @DisplayName("Should return true if user is blocked")
     void testIsUserBlockedTrue() {
-        User user = new User();
-        user.setBlocked(true);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        boolean isBlocked = userService.isUserBlocked(1L);
-
-        assertTrue(isBlocked);
+        assertTrue(userService.isUserBlocked(3L));
     }
 
     @Test
-    @DisplayName("Should return false if user is not blocked")
     void testIsUserBlockedFalse() {
-        User user = new User();
-        user.setBlocked(false);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        boolean isBlocked = userService.isUserBlocked(1L);
-
-        assertFalse(isBlocked);
+        assertFalse(userService.isUserBlocked(2L));
     }
 
     @Test
-    @DisplayName("Should get all active users")
-    void testGetAllActiveUsers() {
-        List<User> users = Arrays.asList(new User(), new User());
-        when(userRepository.findByIsBlocked(false)).thenReturn(users);
-
-        List<User> result = userService.getAllActiveUsers();
-
-        assertEquals(2, result.size());
-        verify(userRepository, times(1)).findByIsBlocked(false);
+    void testGetAllActiveUsers() throws Exception {
+        List<UserDTO> activeUsers = userService.getAllActiveUsers();
+        assertEquals(2, activeUsers.size());
+        assertTrue(activeUsers.stream().noneMatch(UserDTO::isBlocked));
     }
 
     @Test
-    @DisplayName("Should count all users")
     void testCountAllUsers() {
-        when(userRepository.count()).thenReturn(5L);
-        int count = userService.countAllUsers();
-
-        assertEquals(5, count);
+        assertEquals(3, userService.countAllUsers());
     }
 
     @Test
-    @DisplayName("Should count users by role")
     void testCountUsersByRole() {
-        when(userRepository.countByRole(UserRole.DONATUR)).thenReturn(3L);
-        int count = userService.countUsersByRole(UserRole.DONATUR);
-
-        assertEquals(3, count);
+        assertEquals(2, userService.countUsersByRole(UserRole.FUNDRAISER));
+        assertEquals(1, userService.countUsersByRole(UserRole.DONATUR));
     }
 }
