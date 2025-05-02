@@ -1,17 +1,19 @@
 package id.ac.ui.cs.advprog.admin.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class NotificationDTO {
+public class FundUsageProofDTO {
     private Long id;
+    private Long campaignId;
     private String title;
-    private String message;
-    private LocalDateTime createdAt;
+    private String description;
+    private Double amount;
+    private LocalDateTime submittedAt;
 }
