@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.admin.controller;
 
-import id.ac.ui.cs.advprog.admin.model.Notification;
 import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import id.ac.ui.cs.advprog.admin.service.NotificationService;
 import lombok.RequiredArgsConstructor;

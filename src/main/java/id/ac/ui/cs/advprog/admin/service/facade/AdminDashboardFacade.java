@@ -5,7 +5,6 @@ import id.ac.ui.cs.advprog.admin.enums.CampaignStatus;
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
 import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
-import id.ac.ui.cs.advprog.admin.service.FundUsageProofService;
 import id.ac.ui.cs.advprog.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ public class AdminDashboardFacade {
     private final CampaignService campaignService;
     private final DonationHistoryService donationHistoryService;
     private final UserService userService;
-    private final FundUsageProofService fundUsageProofService;
 
     public AdminDashboardStatsDTO getDashboardStats() {
         long totalCampaigns = campaignService.countCampaigns();
