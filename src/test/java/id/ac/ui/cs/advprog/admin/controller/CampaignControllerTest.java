@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -36,26 +37,16 @@ public class CampaignControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.title").value("Kampanye A"))
-                .andExpect(jsonPath("$.status").value("ACTIVE"));
-    }
-
-
-    @Test
-    void testUpdateCampaignStatus() throws Exception {
-        mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .put("/admin/campaigns/1/status")
-                        .param("status", "COMPLETED")
-        ).andExpect(status().isOk());
+                .andExpect(jsonPath("$.progressStatus").value("ACTIVE"));
     }
 
     @Test
     void testVerifyCampaignApprove() throws Exception {
-        mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .post("/admin/campaigns/1/verify")
-                        .param("approve", "true")
-        ).andExpect(status().isOk());
+        mockMvc.perform(post("/admin/campaigns/1/verify")
+                        .param("approve", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.verificationStatus").value("VERIFIED"));
     }
 
     @Test

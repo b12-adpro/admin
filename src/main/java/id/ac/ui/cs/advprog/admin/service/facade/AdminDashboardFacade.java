@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.admin.service.facade;
 
 import id.ac.ui.cs.advprog.admin.dto.AdminDashboardStatsDTO;
-import id.ac.ui.cs.advprog.admin.enums.CampaignStatus;
+import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
 import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
@@ -19,9 +19,9 @@ public class AdminDashboardFacade {
 
     public AdminDashboardStatsDTO getDashboardStats() {
         long totalCampaigns = campaignService.countCampaigns();
-        long pendingCampaigns = campaignService.countCampaignsByStatus(CampaignStatus.PENDING);
-        long activeCampaigns = campaignService.countCampaignsByStatus(CampaignStatus.ACTIVE);
-        long completedCampaigns = campaignService.countCampaignsByStatus(CampaignStatus.COMPLETED);
+        long pendingCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.PENDING);
+        long activeCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.ACTIVE);
+        long completedCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.COMPLETED);
 
         int totalUsers = userService.countAllUsers();
         int totalFundraisers = userService.countUsersByRole(UserRole.FUNDRAISER);

@@ -1,7 +1,8 @@
 package id.ac.ui.cs.advprog.admin.service;
 
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
-import id.ac.ui.cs.advprog.admin.enums.CampaignStatus;
+import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
+import id.ac.ui.cs.advprog.admin.enums.CampaignVerificationStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,33 +35,32 @@ class CampaignServiceImplTest {
     @Test
     void testGetCampaignDTOByIdNotFound() {
         Long nonExistentId = 999L;
-
         Exception exception = assertThrows(NoSuchElementException.class, () -> {
             campaignService.getCampaignDTOById(nonExistentId);
         });
-
         assertEquals("Campaign not found", exception.getMessage());
     }
 
     @Test
-    void testUpdateCampaignStatus() {
-        List<CampaignDTO> activeCampaigns = campaignService.getCampaignsByStatus(CampaignStatus.ACTIVE);
+    void testGetCampaignsByProgressStatus() {
+        List<CampaignDTO> activeCampaigns = campaignService.getCampaignsByStatus(CampaignProgressStatus.ACTIVE);
         assertEquals(1, activeCampaigns.size());
         assertEquals("Kampanye A", activeCampaigns.get(0).getTitle());
     }
 
     @Test
     void testVerifyCampaignApproved() {
-        CampaignDTO updated = campaignService.verifyCampaign(3L, true);
-        assertEquals(CampaignStatus.ACTIVE, updated.getStatus());
+        CampaignDTO updated = campaignService.verifyCampaign(3L, true); // Kampanye C: startDate di masa depan
+        assertEquals(CampaignVerificationStatus.VERIFIED, updated.getVerificationStatus());
+        assertEquals(CampaignProgressStatus.PENDING, updated.getProgressStatus()); // karena belum mulai
     }
 
     @Test
-    void testVerifyCampaignReject() {
-        CampaignDTO campaign = campaignService.verifyCampaign(3L, false); // Campaign C awalnya PENDING
-
-        assertEquals("3", campaign.getId());
-        assertEquals(CampaignStatus.REJECTED, campaign.getStatus());
+    void testVerifyCampaignRejected() {
+        CampaignDTO updated = campaignService.verifyCampaign(3L, false);
+        assertEquals("3", updated.getId());
+        assertEquals(CampaignVerificationStatus.REJECTED, updated.getVerificationStatus());
+        assertNull(updated.getProgressStatus()); // status progress tidak dihitung jika belum diverifikasi
     }
 
     @Test
@@ -69,20 +69,20 @@ class CampaignServiceImplTest {
     }
 
     @Test
-    void testCountCampaignsByStatus() {
-        long count = campaignService.countCampaignsByStatus(CampaignStatus.COMPLETED);
-        assertEquals(1, count);
+    void testCountCampaignsByProgressStatus() {
+        long completedCount = campaignService.countCampaignsByStatus(CampaignProgressStatus.COMPLETED);
+        assertEquals(1, completedCount);
     }
 
     @Test
     void testGetTotalRaisedAmount() {
-        double total = campaignService.getTotalRaisedAmount();
-        assertEquals(25000.0, total);
+        double totalRaised = campaignService.getTotalRaisedAmount();
+        assertEquals(25000.0, totalRaised);
     }
 
     @Test
     void testGetTotalTargetAmount() {
-        double total = campaignService.getTotalTargetAmount();
-        assertEquals(45000.0, total);
+        double totalTarget = campaignService.getTotalTargetAmount();
+        assertEquals(45000.0, totalTarget);
     }
 }

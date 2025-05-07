@@ -1,8 +1,7 @@
 package id.ac.ui.cs.advprog.admin.enums;
 
-public enum CampaignStatus {
+public enum CampaignProgressStatus {
     PENDING,
     ACTIVE,
-    COMPLETED,
-    REJECTED
+    COMPLETED
 }

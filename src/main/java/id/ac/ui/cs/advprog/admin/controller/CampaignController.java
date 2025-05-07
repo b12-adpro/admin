@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.admin.controller;
 
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
 import id.ac.ui.cs.advprog.admin.dto.FundUsageProofDTO;
-import id.ac.ui.cs.advprog.admin.enums.CampaignStatus;
+import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +27,8 @@ public class CampaignController {
     }
 
     @GetMapping("/status/{status}")
-    public List<CampaignDTO> getCampaignsByStatus(@PathVariable CampaignStatus status) {
+    public List<CampaignDTO> getCampaignsByStatus(@PathVariable CampaignProgressStatus status) {
         return campaignService.getCampaignsByStatus(status);
-    }
-
-    @PutMapping("/{id}/status")
-    public CampaignDTO updateCampaignStatus(@PathVariable Long id, @RequestParam CampaignStatus status) {
-        return campaignService.updateCampaignStatus(id, status);
     }
 
     @PostMapping("/{id}/verify")
