@@ -19,7 +19,7 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
         UUID donasiId1 = UUID.fromString("a8a79f87-4cb1-4bb2-8c13-01a344d98f23");
         UUID donasiId2 = UUID.fromString("f0b1f7f3-7e52-4063-bf6f-06d498b9a9b2");
 
-        UUID campaignId1 = UUID.fromString("d4eaf8a4-90ab-47c1-9d5e-748fa4b374ed");
+        UUID campaignId1 = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042989");
         UUID campaignId2 = UUID.fromString("c5c83917-92b2-496f-a0b7-d7acfa7d8df0");
 
         UUID donaturId1 = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042990");
@@ -61,6 +61,7 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
 
     @Override
     public List<DonationHistoryDTO> getDonationHistoryByDonatur(UUID donaturId) {
+        System.out.println("Fetching donation history for donatur with ID: " + donaturId);
         return dummyDonations.stream()
                 .filter(d -> d.getDonaturId().equals(donaturId))
                 .collect(Collectors.toList());
