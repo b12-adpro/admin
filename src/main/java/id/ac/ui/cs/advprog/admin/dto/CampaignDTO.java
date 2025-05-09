@@ -7,13 +7,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CampaignDTO {
-    private String id;
-    private String fundraiserId;
+    private UUID id;
+    private UUID fundraiserId;
+    private String fundraiserName;
     private String title;
     private Double targetAmount;
     private Double currentAmount;
