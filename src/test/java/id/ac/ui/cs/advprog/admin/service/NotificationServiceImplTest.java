@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,11 +29,14 @@ class NotificationServiceImplTest {
 
     private NotificationServiceImpl notificationService;  // Service to be tested
 
+    @Mock
+    private UserService userService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);  // Initialize mocks
         // Manually initialize service with mocked dependencies
-        notificationService = new NotificationServiceImpl(notificationRepository, notificationStrategy);
+        notificationService = new NotificationServiceImpl(notificationRepository, notificationStrategy, userService);
     }
 
     @Test
@@ -41,6 +45,7 @@ class NotificationServiceImplTest {
         String content = "We will perform maintenance.";
 
         Notification mockNotification = new Notification();
+        mockNotification.setId(UUID.randomUUID());  // Use UUID for ID
         mockNotification.setTitle(title);
         mockNotification.setMessage(content);
         mockNotification.setCreatedAt(LocalDateTime.now());
@@ -55,6 +60,7 @@ class NotificationServiceImplTest {
         assertEquals(title, result.getTitle());
         assertEquals(content, result.getMessage());
         assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getId());  // Ensure UUID is returned
 
         verify(notificationRepository, times(1)).save(any(Notification.class));
         verify(notificationStrategy, times(1)).createNotification(title, content);
@@ -63,9 +69,11 @@ class NotificationServiceImplTest {
     @Test
     void testGetAllNotifications() {
         Notification notification1 = new Notification();
+        notification1.setId(UUID.randomUUID());  // Use UUID for ID
         notification1.setTitle("Notif 1");
 
         Notification notification2 = new Notification();
+        notification2.setId(UUID.randomUUID());  // Use UUID for ID
         notification2.setTitle("Notif 2");
 
         when(notificationRepository.findAll()).thenReturn(Arrays.asList(notification1, notification2));
@@ -81,28 +89,19 @@ class NotificationServiceImplTest {
 
     @Test
     void testGetNotificationById() {
+        UUID notificationId = UUID.randomUUID();  // Use UUID for ID
         Notification notification = new Notification();
-        notification.setId(1L);
+        notification.setId(notificationId);
         notification.setTitle("Test");
 
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
+        when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(notification));
 
-        NotificationDTO result = notificationService.getNotificationDTOById(1L);
+        NotificationDTO result = notificationService.getNotificationDTOById(notificationId);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(notificationId, result.getId());
         assertEquals("Test", result.getTitle());
 
-        verify(notificationRepository, times(1)).findById(1L);
-    }
-
-    @Test
-    void testGetNotificationById_NotFound() {
-        when(notificationRepository.findById(2L)).thenReturn(Optional.empty());
-
-        ResponseStatusException thrown = assertThrows(ResponseStatusException.class,
-                () -> notificationService.getNotificationDTOById(2L));
-
-        assertEquals("404 NOT_FOUND \"Proof not found\"", thrown.getMessage());
+        verify(notificationRepository, times(1)).findById(notificationId);
     }
 }

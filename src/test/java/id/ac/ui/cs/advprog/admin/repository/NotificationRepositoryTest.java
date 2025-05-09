@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +37,7 @@ public class NotificationRepositoryTest {
         notification.setCreatedAt(LocalDateTime.now());
 
         Notification saved = notificationRepository.save(notification);
-        Long id = saved.getId();
+        UUID id = saved.getId();
 
         notificationRepository.deleteById(id);
         Optional<Notification> found = notificationRepository.findById(id);
