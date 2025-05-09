@@ -11,12 +11,13 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final Map<Long, UserDTO> dummyUsers = new HashMap<>();
+    private final Map<String, UserDTO> dummyUsers = new HashMap<>();
 
     public UserServiceImpl() {
-        dummyUsers.put(1L, UserDTO.builder().id(1L).name("Andi").role(UserRole.FUNDRAISER).isBlocked(false).build());
-        dummyUsers.put(2L, UserDTO.builder().id(2L).name("Siti").role(UserRole.DONATUR).isBlocked(false).build());
-        dummyUsers.put(3L, UserDTO.builder().id(3L).name("Budi").role(UserRole.FUNDRAISER).isBlocked(true).build());
+
+        dummyUsers.put("7e8725e7-c9d8-4176-a392-4c3897042990", UserDTO.builder().id(UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042990")).name("Siti").role(UserRole.DONATUR).isBlocked(false).build());
+        dummyUsers.put("7e8725e7-c9d8-4176-a392-4c3897042991", UserDTO.builder().id(UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042991")).name("Budi").role(UserRole.FUNDRAISER).isBlocked(true).build());
+        dummyUsers.put("7e8725e7-c9d8-4176-a392-4c3897042989", UserDTO.builder().id(UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042989")).name("Andi").role(UserRole.FUNDRAISER).isBlocked(false).build());
     }
 
     @Override
@@ -25,26 +26,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> getUserById(Long id) {
+    public Optional<UserDTO> getUserById(UUID id) {
         return Optional.ofNullable(dummyUsers.get(id));
     }
 
     @Override
-    public UserDTO blockUser(Long id) {
-        UserDTO user = dummyUsers.get(id);
+    public UserDTO setBlockedStatus(UUID id, boolean status) {
+        UserDTO user = dummyUsers.get(id.toString());
         if (user != null) {
-            user.setBlocked(true);
+            user.setBlocked(status);
         }
         return user;
     }
 
     @Override
-    public void deleteUser(Long id) {
-        dummyUsers.remove(id);
+    public void deleteUser(UUID id) {
+        dummyUsers.remove(id.toString());
     }
 
     @Override
-    public boolean isUserBlocked(Long id) {
+    public boolean isUserBlocked(UUID id) {
         UserDTO user = dummyUsers.get(id);
         return user != null && user.isBlocked();
     }

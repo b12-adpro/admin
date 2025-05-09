@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -33,17 +34,21 @@ class FundUsageProofServiceImplTest {
     @DisplayName("Should return all fund usage proofs")
     void testGetAllProofs() {
         // Data dummy untuk testing
+        UUID proofId1 = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042989");
+        UUID proofId2 = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042990");
+        UUID campaignId = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042999");
+
         FundUsageProof proof1 = new FundUsageProof();
-        proof1.setId(1L);
-        proof1.setCampaignId(10L);
+        proof1.setId(proofId1);
+        proof1.setCampaignId(campaignId);
         proof1.setTitle("Laporan 1");
         proof1.setDescription("Deskripsi 1");
         proof1.setAmount(100000.0);
         proof1.setSubmittedAt(LocalDateTime.of(2025, 4, 1, 10, 0));
 
         FundUsageProof proof2 = new FundUsageProof();
-        proof2.setId(2L);
-        proof2.setCampaignId(10L);
+        proof2.setId(proofId2);
+        proof2.setCampaignId(campaignId);
         proof2.setTitle("Laporan 2");
         proof2.setDescription("Deskripsi 2");
         proof2.setAmount(200000.0);
@@ -64,9 +69,11 @@ class FundUsageProofServiceImplTest {
     @Test
     @DisplayName("Should return fund usage proofs by campaign ID")
     void testGetProofsByCampaign() {
-        Long campaignId = 5L;
+        UUID campaignId = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042999");
+        UUID proofId = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042998");
+
         FundUsageProof proof = new FundUsageProof();
-        proof.setId(3L);
+        proof.setId(proofId);
         proof.setCampaignId(campaignId);
         proof.setTitle("Bukti Penggunaan Dana");
         proof.setDescription("Dana dipakai untuk logistik");

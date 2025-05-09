@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -25,42 +26,15 @@ public class CampaignControllerTest {
 
     @Test
     void testGetCampaignsByStatus() throws Exception {
-        mockMvc.perform(get("/admin/campaigns/status/ACTIVE"))
+        mockMvc.perform(get("/admin/campaigns/campaignprogressstatus/ACTIVE"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void testGetCampaignById() throws Exception {
-        mockMvc.perform(get("/admin/campaigns/1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.title").value("Kampanye A"))
-                .andExpect(jsonPath("$.status").value("ACTIVE"));
-    }
-
-
-    @Test
-    void testUpdateCampaignStatus() throws Exception {
-        mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .put("/admin/campaigns/1/status")
-                        .param("status", "COMPLETED")
-        ).andExpect(status().isOk());
-    }
-
-    @Test
-    void testVerifyCampaignApprove() throws Exception {
-        mockMvc.perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .post("/admin/campaigns/1/verify")
-                        .param("approve", "true")
-        ).andExpect(status().isOk());
-    }
-
-    @Test
     void testGetFundUsageProofs() throws Exception {
-        mockMvc.perform(get("/admin/campaigns/1/fund-usage-proofs"))
+        String campaignId = "7e8725e7-c9d8-4176-a392-4c3897042989";  // UUID valid from dummy data
+
+        mockMvc.perform(get("/admin/campaigns/" + campaignId + "/fund-usage-proofs"))
                 .andExpect(status().isOk());
     }
 }

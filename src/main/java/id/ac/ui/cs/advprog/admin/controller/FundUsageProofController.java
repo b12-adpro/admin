@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/fund-usage")
@@ -21,7 +22,7 @@ public class FundUsageProofController {
     }
 
     @GetMapping("/campaign/{campaignId}")
-    public ResponseEntity<List<FundUsageProofDTO>> getProofsByCampaign(@PathVariable Long campaignId) {
+    public ResponseEntity<List<FundUsageProofDTO>> getProofsByCampaign(@PathVariable UUID campaignId) {
         return ResponseEntity.ok(fundUsageProofService.getProofsByCampaignDTO(campaignId));
     }
 }

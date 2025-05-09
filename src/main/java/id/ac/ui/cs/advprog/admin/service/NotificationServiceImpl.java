@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,10 +19,16 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationStrategy notificationStrategy;
+    private final UserService userService;
 
     @Override
     public NotificationDTO createNotification(String title, String message) {
         Notification notification = notificationStrategy.createNotification(title, message);
+        int recipients = userService.countAllUsers();
+        notification.setRecipientsCount(recipients);
+        userService.getAllUsers().forEach(user ->
+                System.out.println("📬 Notification sent to: " + user.getName())
+        );
         notificationRepository.save(notification);
         return toDTO(notification);
     }
@@ -34,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationDTO getNotificationDTOById(Long id) {
+    public NotificationDTO getNotificationDTOById(UUID id) {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proof not found"));
         return toDTO(notification);
@@ -45,7 +52,8 @@ public class NotificationServiceImpl implements NotificationService {
                 notification.getId(),
                 notification.getTitle(),
                 notification.getMessage(),
-                notification.getCreatedAt()
+                notification.getCreatedAt(),
+                userService.countAllUsers()
         );
     }
 }

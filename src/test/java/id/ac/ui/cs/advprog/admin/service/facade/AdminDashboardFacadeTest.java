@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.admin.service.facade;
 
 import id.ac.ui.cs.advprog.admin.dto.AdminDashboardStatsDTO;
 import id.ac.ui.cs.advprog.admin.dto.DonationHistoryDTO;
-import id.ac.ui.cs.advprog.admin.enums.CampaignStatus;
+import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
 import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
@@ -44,9 +44,9 @@ class AdminDashboardFacadeTest {
     @Test
     void testGetDashboardStats() {
         when(campaignService.countCampaigns()).thenReturn(10L);
-        when(campaignService.countCampaignsByStatus(CampaignStatus.PENDING)).thenReturn(2L);
-        when(campaignService.countCampaignsByStatus(CampaignStatus.ACTIVE)).thenReturn(5L);
-        when(campaignService.countCampaignsByStatus(CampaignStatus.COMPLETED)).thenReturn(3L);
+        when(campaignService.countCampaignsByStatus(CampaignProgressStatus.UPCOMING)).thenReturn(2L);
+        when(campaignService.countCampaignsByStatus(CampaignProgressStatus.ACTIVE)).thenReturn(5L);
+        when(campaignService.countCampaignsByStatus(CampaignProgressStatus.COMPLETED)).thenReturn(3L);
 
         when(userService.countAllUsers()).thenReturn(100);
         when(userService.countUsersByRole(UserRole.FUNDRAISER)).thenReturn(40);
@@ -61,7 +61,7 @@ class AdminDashboardFacadeTest {
 
         AdminDashboardStatsDTO stats = adminDashboardFacade.getDashboardStats();
         assertEquals(10L, stats.getTotalCampaigns());
-        assertEquals(2L, stats.getPendingCampaigns());
+        assertEquals(2L, stats.getUpcomingCampaigns());
         assertEquals(5L, stats.getActiveCampaigns());
         assertEquals(3L, stats.getCompletedCampaigns());
         assertEquals(100, stats.getTotalUsers());

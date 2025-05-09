@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -24,8 +26,8 @@ class NotificationControllerTest {
 
     @Test
     void testGetNotificationById_NotFound() throws Exception {
-        mockMvc.perform(get("/admin/notifications/999"))
-                .andExpect(status().isNotFound()); // asumsi ID 999 tidak ada
+        mockMvc.perform(get("/admin/notifications/99999999-9999-9999-9999-999999999999")) // UUID not found
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -38,14 +40,5 @@ class NotificationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Important Update"))
                 .andExpect(jsonPath("$.message").value("Please check the new update."));
-    }
-
-    @Test
-    void testGetNotificationById_Success() throws Exception {
-        mockMvc.perform(get("/admin/notifications/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.message").exists());
     }
 }

@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.admin.controller;
 
-import id.ac.ui.cs.advprog.admin.model.Notification;
 import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import id.ac.ui.cs.advprog.admin.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/notifications")
@@ -17,7 +17,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<NotificationDTO> getNotificationById(@PathVariable Long id) {
+    public ResponseEntity<NotificationDTO> getNotificationById(@PathVariable UUID id) {
         NotificationDTO notification = notificationService.getNotificationDTOById(id);
         return ResponseEntity.ok(notification);
     }

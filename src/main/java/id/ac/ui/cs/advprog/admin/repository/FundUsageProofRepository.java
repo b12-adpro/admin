@@ -5,8 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface FundUsageProofRepository extends JpaRepository<FundUsageProof, Long> {
-    List<FundUsageProof> findByCampaignId(Long campaignId);
+public interface FundUsageProofRepository extends JpaRepository<FundUsageProof, UUID> {
+    List<FundUsageProof> findByCampaignId(UUID campaignId);
 }

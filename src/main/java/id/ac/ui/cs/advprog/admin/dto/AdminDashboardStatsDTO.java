@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdminDashboardStatsDTO {
     private long totalCampaigns;
-    private long pendingCampaigns;
+    private long upcomingCampaigns;
     private long activeCampaigns;
     private long completedCampaigns;
     private int totalUsers;

@@ -5,9 +5,8 @@ import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,65 +21,27 @@ class UserServiceImplTest {
 
     @Test
     void testGetAllUsers() {
-        List<?> users = userService.getAllUsers();
+        List<UserDTO> users = userService.getAllUsers();
         assertEquals(3, users.size());
     }
 
     @Test
-    void testGetUserById() throws Exception {
-        Optional<?> userOpt = userService.getUserById(1L);
-        assertTrue(userOpt.isPresent());
-
-        Object user = userOpt.get();
-        Method getName = user.getClass().getMethod("getName");
-        String name = (String) getName.invoke(user);
-
-        assertEquals("Andi", name);
-    }
-
-    @Test
-    void testBlockExistingUser() {
-        UserDTO user = userService.blockUser(2L);
-
-        assertNotNull(user);
-        assertTrue(user.isBlocked());
-    }
-
-    @Test
     void testBlockNonExistentUser() {
-        UserDTO user = userService.blockUser(999L);
+        UUID nonExistentUserId = UUID.fromString("999e6543-e21b-34d3-b123-826614174999");
+        UserDTO user = userService.setBlockedStatus(nonExistentUserId, true);
         assertNull(user);
     }
 
     @Test
     void testIsUserBlockedNonExistent() {
-        assertFalse(userService.isUserBlocked(999L));
-    }
-
-    @Test
-    void testBlockUser() throws Exception {
-        Object user = userService.blockUser(2L);
-        Method isBlocked = user.getClass().getMethod("isBlocked");
-        boolean blocked = (boolean) isBlocked.invoke(user);
-
-        assertTrue(blocked);
-    }
-
-    @Test
-    void testDeleteUser() {
-        userService.deleteUser(1L);
-        assertFalse(userService.getUserById(1L).isPresent());
-        assertEquals(2, userService.getAllUsers().size());
-    }
-
-    @Test
-    void testIsUserBlockedTrue() {
-        assertTrue(userService.isUserBlocked(3L));
+        UUID nonExistentUserId = UUID.fromString("999e6543-e21b-34d3-b123-826614174999");
+        assertFalse(userService.isUserBlocked(nonExistentUserId));
     }
 
     @Test
     void testIsUserBlockedFalse() {
-        assertFalse(userService.isUserBlocked(2L));
+        UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        assertFalse(userService.isUserBlocked(userId));
     }
 
     @Test

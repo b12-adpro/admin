@@ -5,13 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationDTO {
-    private Long id;
+    private UUID id;
     private String title;
     private String message;
     private LocalDateTime createdAt;
+    private int recipientsCount;
 }

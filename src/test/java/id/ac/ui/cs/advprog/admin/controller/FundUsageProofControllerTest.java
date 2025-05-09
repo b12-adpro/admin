@@ -27,7 +27,7 @@ public class FundUsageProofControllerTest {
 
     @Test
     void testGetProofsByCampaign() throws Exception {
-        mockMvc.perform(get("/admin/fund-usage/campaign/1")
+        mockMvc.perform(get("/admin/fund-usage/campaign/" + "7e8725e7-c9d8-4176-a392-4c3897042989")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());

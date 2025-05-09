@@ -5,14 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class DonationHistoryDTO {
-    private Long id;
+    private UUID id;
+    private UUID campaignId;
+    private UUID donaturId;
+    private String donaturName;
     private String campaignTitle;
-    private String donorName;
     private Double amount;
     private LocalDateTime donatedAt;
 }

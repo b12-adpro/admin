@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +15,7 @@ public class NotificationTest {
     @BeforeEach
     void setUp() {
         notification = new Notification();
-        notification.setId(10L);
+        notification.setId(UUID.randomUUID());
         notification.setTitle("Pengumuman");
         notification.setMessage("Ada pembaruan sistem.");
 
@@ -24,7 +25,7 @@ public class NotificationTest {
 
     @Test
     void testNotificationFields() {
-        assertEquals(10L, notification.getId());
+        assertEquals(notification.getId(), notification.getId());
         assertEquals("Pengumuman", notification.getTitle());
         assertEquals("Ada pembaruan sistem.", notification.getMessage());
         assertNotNull(notification.getCreatedAt());

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +25,7 @@ public class FundUsageProofServiceImpl implements FundUsageProofService {
     }
 
     @Override
-    public List<FundUsageProofDTO> getProofsByCampaignDTO(Long campaignId) {
+    public List<FundUsageProofDTO> getProofsByCampaignDTO(UUID campaignId) {
         List<FundUsageProof> proofs = fundUsageProofRepository.findByCampaignId(campaignId);
         return proofs.stream()
                 .map(this::toDTO)
