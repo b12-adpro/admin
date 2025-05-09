@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdminDashboardStatsDTO {
     private long totalCampaigns;
-    private long pendingCampaigns;
+    private long upcomingCampaigns;
     private long activeCampaigns;
     private long completedCampaigns;
     private int totalUsers;

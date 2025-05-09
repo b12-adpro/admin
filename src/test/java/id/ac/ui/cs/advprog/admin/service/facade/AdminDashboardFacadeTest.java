@@ -44,7 +44,7 @@ class AdminDashboardFacadeTest {
     @Test
     void testGetDashboardStats() {
         when(campaignService.countCampaigns()).thenReturn(10L);
-        when(campaignService.countCampaignsByStatus(CampaignProgressStatus.PENDING)).thenReturn(2L);
+        when(campaignService.countCampaignsByStatus(CampaignProgressStatus.UPCOMING)).thenReturn(2L);
         when(campaignService.countCampaignsByStatus(CampaignProgressStatus.ACTIVE)).thenReturn(5L);
         when(campaignService.countCampaignsByStatus(CampaignProgressStatus.COMPLETED)).thenReturn(3L);
 
@@ -61,7 +61,7 @@ class AdminDashboardFacadeTest {
 
         AdminDashboardStatsDTO stats = adminDashboardFacade.getDashboardStats();
         assertEquals(10L, stats.getTotalCampaigns());
-        assertEquals(2L, stats.getPendingCampaigns());
+        assertEquals(2L, stats.getUpcomingCampaigns());
         assertEquals(5L, stats.getActiveCampaigns());
         assertEquals(3L, stats.getCompletedCampaigns());
         assertEquals(100, stats.getTotalUsers());

@@ -19,7 +19,7 @@ public class AdminDashboardFacade {
 
     public AdminDashboardStatsDTO getDashboardStats() {
         long totalCampaigns = campaignService.countCampaigns();
-        long pendingCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.PENDING);
+        long upcomingCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.UPCOMING);
         long activeCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.ACTIVE);
         long completedCampaigns = campaignService.countCampaignsByStatus(CampaignProgressStatus.COMPLETED);
 
@@ -29,11 +29,11 @@ public class AdminDashboardFacade {
 
         long totalDonations = donationHistoryService.getAllDonationHistories().size();
 
-        //TODO: totalCampaigns, pendingCampaigns, activeCampaigns, completedCampaigns, totalUsers, totalFundraisers, totalDonatur, totalDonations, pendingProofs
+        //TODO: totalCampaigns, upcomingCampaigns, activeCampaigns, completedCampaigns, totalUsers, totalFundraisers, totalDonatur, totalDonations, pendingProofs
 
         return new AdminDashboardStatsDTO(
                 totalCampaigns,        // totalCampaigns
-                pendingCampaigns,        // pendingCampaigns
+                upcomingCampaigns,        // upcomingCampaigns
                 activeCampaigns,        // activeCampaigns
                 completedCampaigns,        // completedCampaigns
                 totalUsers,        // totalUsers
