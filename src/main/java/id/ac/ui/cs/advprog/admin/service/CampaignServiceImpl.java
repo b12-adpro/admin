@@ -45,7 +45,7 @@ public class CampaignServiceImpl implements CampaignService {
         ));
 
         dummyCampaigns.add(new CampaignDTO(
-                campaignCId, fundraiserCId, "Citra", "Kampanye C", 15000.0, 0.0,
+                campaignCId, fundraiserCId, "Sita", "Kampanye C", 15000.0, 0.0,
                 LocalDate.now().plusDays(1), LocalDate.now().plusDays(20),
                 CampaignVerificationStatus.PENDING, null
         ));
