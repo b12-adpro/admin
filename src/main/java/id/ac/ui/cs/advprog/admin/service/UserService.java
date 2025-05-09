@@ -5,13 +5,14 @@ import id.ac.ui.cs.advprog.admin.enums.UserRole;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
     List<UserDTO> getAllUsers();
-    Optional<UserDTO> getUserById(Long id);
-    UserDTO blockUser(Long id);
-    void deleteUser(Long id);
-    boolean isUserBlocked(Long id);
+    Optional<UserDTO> getUserById(UUID id);
+    UserDTO setBlockedStatus(UUID id, boolean status);
+    void deleteUser(UUID id);
+    boolean isUserBlocked(UUID id);
     List<UserDTO> getAllActiveUsers();
     int countAllUsers();
     int countUsersByRole(UserRole role);
