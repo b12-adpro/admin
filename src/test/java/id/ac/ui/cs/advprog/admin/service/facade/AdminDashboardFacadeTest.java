@@ -6,7 +6,6 @@ import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
 import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
 import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
-import id.ac.ui.cs.advprog.admin.service.FundUsageProofService;
 import id.ac.ui.cs.advprog.admin.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +28,6 @@ class AdminDashboardFacadeTest {
 
     @Mock
     private UserService userService;
-
-    @Mock
-    private FundUsageProofService fundUsageProofService;
 
     @InjectMocks
     private AdminDashboardFacade adminDashboardFacade;
