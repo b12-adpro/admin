@@ -29,8 +29,6 @@ public class AdminDashboardFacade {
 
         long totalDonations = donationHistoryService.getAllDonationHistories().size();
 
-        //TODO: totalCampaigns, upcomingCampaigns, activeCampaigns, completedCampaigns, totalUsers, totalFundraisers, totalDonatur, totalDonations, pendingProofs
-
         return new AdminDashboardStatsDTO(
                 totalCampaigns,        // totalCampaigns
                 upcomingCampaigns,        // upcomingCampaigns
