@@ -2,8 +2,10 @@ package id.ac.ui.cs.advprog.admin.service;
 
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
 import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.NoSuchElementException;
 import java.util.List;
@@ -11,14 +13,12 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@ActiveProfiles("test")
 class CampaignServiceImplTest {
 
-    private CampaignServiceImpl campaignService;
-
-    @BeforeEach
-    void setUp() {
-        campaignService = new CampaignServiceImpl();
-    }
+    @Autowired
+    private CampaignService campaignService;
 
     @Test
     void testGetAllCampaigns() {

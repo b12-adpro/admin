@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
 import id.ac.ui.cs.advprog.admin.dto.FundUsageProofDTO;
 import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
 import id.ac.ui.cs.advprog.admin.enums.CampaignVerificationStatus;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,8 @@ public class CampaignServiceImpl implements CampaignService {
     private final List<CampaignDTO> dummyCampaigns = new ArrayList<>();
     private final List<FundUsageProofDTO> dummyProofs = new ArrayList<>();
 
-    {
+    @PostConstruct
+    private void initDummyData() {
         UUID campaignAId = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042989");
         UUID fundraiserAId = UUID.fromString("f1d8eabc-1234-4c00-aaaa-bbbbcccc0001");
 
@@ -67,7 +69,6 @@ public class CampaignServiceImpl implements CampaignService {
                 .amount(2000.0)
                 .submittedAt(LocalDateTime.now().minusDays(5))
                 .build());
-
     }
 
     private CampaignProgressStatus calculateProgressStatus(CampaignDTO campaign) {
