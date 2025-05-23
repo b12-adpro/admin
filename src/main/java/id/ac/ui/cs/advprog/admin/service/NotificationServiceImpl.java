@@ -3,7 +3,8 @@ package id.ac.ui.cs.advprog.admin.service;
 import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import id.ac.ui.cs.advprog.admin.model.Notification;
 import id.ac.ui.cs.advprog.admin.repository.NotificationRepository;
-import id.ac.ui.cs.advprog.admin.service.strategy.NotificationStrategy;
+import id.ac.ui.cs.advprog.admin.service.observer.NotificationPublisher;
+import id.ac.ui.cs.advprog.admin.service.observer.UserNotificationListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,24 +13,25 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final NotificationStrategy notificationStrategy;
+    private final NotificationPublisher notificationPublisher;
     private final UserService userService;
 
     @Override
     public NotificationDTO createNotification(String title, String message) {
-        Notification notification = notificationStrategy.createNotification(title, message);
-        int recipients = userService.countAllUsers();
-        notification.setRecipientsCount(recipients);
-        userService.getAllUsers().forEach(user ->
-                System.out.println("📬 Notification sent to: " + user.getName())
-        );
+        Notification notification = new Notification();
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setRecipientsCount(userService.getAllActiveUsers().size());
         notificationRepository.save(notification);
+        notificationPublisher.publish(message);
         return toDTO(notification);
     }
 
@@ -53,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
                 notification.getTitle(),
                 notification.getMessage(),
                 notification.getCreatedAt(),
-                userService.countAllUsers()
+                notification.getRecipientsCount()
         );
     }
 }
