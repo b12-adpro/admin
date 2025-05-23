@@ -14,8 +14,6 @@ public class UserNotificationListener implements NotificationListener {
 
     @Override
     public void onNotification(String message) {
-        userService.getAllActiveUsers().forEach(user -> {
-            System.out.println("📬 Sending notification to " + user.getName() + ": " + message);
-        });
+        userService.getAllActiveUsers().forEach(user -> System.out.println("📬 Sending notification to " + user.getName() + ": " + message));
     }
 }

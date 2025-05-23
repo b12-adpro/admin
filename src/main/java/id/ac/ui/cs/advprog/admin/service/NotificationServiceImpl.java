@@ -4,7 +4,6 @@ import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import id.ac.ui.cs.advprog.admin.model.Notification;
 import id.ac.ui.cs.advprog.admin.repository.NotificationRepository;
 import id.ac.ui.cs.advprog.admin.service.observer.NotificationPublisher;
-import id.ac.ui.cs.advprog.admin.service.observer.UserNotificationListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

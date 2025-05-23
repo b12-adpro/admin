@@ -4,7 +4,6 @@ import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import id.ac.ui.cs.advprog.admin.dto.UserDTO;
 import id.ac.ui.cs.advprog.admin.model.Notification;
 import id.ac.ui.cs.advprog.admin.service.observer.NotificationPublisher;
-import id.ac.ui.cs.advprog.admin.service.observer.NotificationPublisherTest;
 import id.ac.ui.cs.advprog.admin.repository.NotificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,11 @@ class NotificationServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        try (AutoCloseable autoCloseable = MockitoAnnotations.openMocks(this)) {
+            notificationService = new NotificationServiceImpl(notificationRepository, notificationPublisher, userService);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         notificationService = new NotificationServiceImpl(notificationRepository, notificationPublisher, userService);
     }
 

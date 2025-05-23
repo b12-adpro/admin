@@ -20,19 +20,19 @@ class UserNotificationListenerTest {
     @InjectMocks
     private UserNotificationListener listener;
 
-    @Captor
-    ArgumentCaptor<String> messageCaptor;
-
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        try (AutoCloseable autoCloseable = MockitoAnnotations.openMocks(this)) {
+            MockitoAnnotations.openMocks(this);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     void testOnNotification_sendsToOnlyActiveUsers() {
         // Arrange
         UserDTO user1 = new UserDTO(UUID.randomUUID(), "Siti", DONATUR, false); // active
-        UserDTO user2 = new UserDTO(UUID.randomUUID(), "Budi", FUNDRAISER, true); // blocked
         UserDTO user3 = new UserDTO(UUID.randomUUID(), "Andi", FUNDRAISER, false); // active
 
         when(userService.getAllActiveUsers()).thenReturn(List.of(user1, user3));
