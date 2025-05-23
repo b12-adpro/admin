@@ -1,14 +1,14 @@
 package id.ac.ui.cs.advprog.admin.service;
 
 import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
+import id.ac.ui.cs.advprog.admin.dto.UserDTO;
 import id.ac.ui.cs.advprog.admin.model.Notification;
-import id.ac.ui.cs.advprog.admin.service.strategy.NotificationStrategy;
+import id.ac.ui.cs.advprog.admin.service.observer.NotificationPublisher;
 import id.ac.ui.cs.advprog.admin.repository.NotificationRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static id.ac.ui.cs.advprog.admin.enums.UserRole.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -25,18 +26,24 @@ class NotificationServiceImplTest {
     private NotificationRepository notificationRepository;  // Mock repository interface
 
     @Mock
-    private NotificationStrategy notificationStrategy;  // Mock strategy interface
+    private NotificationPublisher notificationPublisher; // Mock strategy interface
 
     private NotificationServiceImpl notificationService;  // Service to be tested
 
     @Mock
     private UserService userService;
 
+    private AutoCloseable closeable;
+
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);  // Initialize mocks
-        // Manually initialize service with mocked dependencies
-        notificationService = new NotificationServiceImpl(notificationRepository, notificationStrategy, userService);
+        closeable = MockitoAnnotations.openMocks(this);
+        notificationService = new NotificationServiceImpl(notificationRepository, notificationPublisher, userService);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 
     @Test
@@ -45,13 +52,17 @@ class NotificationServiceImplTest {
         String content = "We will perform maintenance.";
 
         Notification mockNotification = new Notification();
-        mockNotification.setId(UUID.randomUUID());  // Use UUID for ID
+        mockNotification.setId(UUID.randomUUID());
         mockNotification.setTitle(title);
         mockNotification.setMessage(content);
         mockNotification.setCreatedAt(LocalDateTime.now());
 
-        // Mock the strategy's behavior and repository save
-        when(notificationStrategy.createNotification(title, content)).thenReturn(mockNotification);
+        // Mock UserService
+        when(userService.getAllActiveUsers()).thenReturn(List.of(
+                new UserDTO(UUID.randomUUID(), "A", FUNDRAISER, false),
+                new UserDTO(UUID.randomUUID(), "B", DONATUR, false)
+        ));
+
         when(notificationRepository.save(any(Notification.class))).thenReturn(mockNotification);
 
         NotificationDTO result = notificationService.createNotification(title, content);
@@ -60,10 +71,8 @@ class NotificationServiceImplTest {
         assertEquals(title, result.getTitle());
         assertEquals(content, result.getMessage());
         assertNotNull(result.getCreatedAt());
-        assertNotNull(result.getId());  // Ensure UUID is returned
 
         verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(notificationStrategy, times(1)).createNotification(title, content);
     }
 
     @Test
