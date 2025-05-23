@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.admin.service.observer;
 
 import id.ac.ui.cs.advprog.admin.dto.UserDTO;
 import id.ac.ui.cs.advprog.admin.service.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -20,13 +21,16 @@ class UserNotificationListenerTest {
     @InjectMocks
     private UserNotificationListener listener;
 
+    private AutoCloseable closeable;
+
     @BeforeEach
     void setUp() {
-        try (AutoCloseable autoCloseable = MockitoAnnotations.openMocks(this)) {
-            MockitoAnnotations.openMocks(this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 
     @Test
