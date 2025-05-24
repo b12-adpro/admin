@@ -1,13 +1,17 @@
 package id.ac.ui.cs.advprog.admin.repository;
 
 import id.ac.ui.cs.advprog.admin.model.Notification;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,44 +24,48 @@ public class NotificationRepositoryTest {
     @Test
     void testSaveAndFindNotification() {
         Notification notification = new Notification();
-        notification.setMessage("Donasi berhasil");
+        notification.setTitle("Notifikasi");
+        notification.setMessage("Donasi berhasil diterima.");
         notification.setCreatedAt(LocalDateTime.now());
+        notification.setRecipientsCount(1);
 
         Notification saved = notificationRepository.save(notification);
 
         Optional<Notification> found = notificationRepository.findById(saved.getId());
         assertTrue(found.isPresent());
-        assertEquals("Donasi berhasil", found.get().getMessage());
+        assertEquals("Donasi berhasil diterima.", found.get().getMessage());
     }
 
     @Test
-    void testDeleteNotification() {
+    void testValidationFailsWhenTitleIsBlank() {
         Notification notification = new Notification();
-        notification.setMessage("Laporan diterima");
+        notification.setTitle("   "); // invalid
+        notification.setMessage("Pesan valid");
         notification.setCreatedAt(LocalDateTime.now());
+        notification.setRecipientsCount(1);
 
-        Notification saved = notificationRepository.save(notification);
-        UUID id = saved.getId();
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
 
-        notificationRepository.deleteById(id);
-        Optional<Notification> found = notificationRepository.findById(id);
-
-        assertFalse(found.isPresent());
+        Set<ConstraintViolation<Notification>> violations = validator.validate(notification);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
     void testFindAllNotifications() {
-        Notification notif1 = new Notification();
-        notif1.setMessage("Satu");
-        notif1.setCreatedAt(LocalDateTime.now());
-
-        Notification notif2 = new Notification();
-        notif2.setMessage("Dua");
-        notif2.setCreatedAt(LocalDateTime.now());
-
-        notificationRepository.save(notif1);
-        notificationRepository.save(notif2);
+        notificationRepository.save(createValidNotification("Notifikasi 1", "Pesan satu valid."));
+        notificationRepository.save(createValidNotification("Notifikasi 2", "Pesan dua valid."));
 
         assertEquals(2, notificationRepository.findAll().size());
     }
+
+    private Notification createValidNotification(String title, String message) {
+        Notification notif = new Notification();
+        notif.setTitle(title);
+        notif.setMessage(message);
+        notif.setCreatedAt(LocalDateTime.now());
+        notif.setRecipientsCount(1);
+        return notif;
+    }
+
 }
