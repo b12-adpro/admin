@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.admin.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,13 +22,41 @@ public class Notification {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
+    @NotBlank(message = "Title cannot be blank")
+    @Size(min = 5, message = "Judul minimum 5 karakter")
     private String title;
+
+    @NotBlank(message = "Title cannot be blank")
+    @Size(min = 10, message = "Pesan minimum memiliki 10 karakter")
     private String message;
     private LocalDateTime createdAt;
     private int recipientsCount;
 
     @PrePersist
-    protected void onCreate() {
+    protected void onCreateAndValidate() {
         createdAt = LocalDateTime.now();
+
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+        if (message == null || message.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message cannot be empty");
+        }
+        if (recipientsCount < 0) {
+            throw new IllegalArgumentException("Recipients count must be zero or positive");
+        }
+    }
+
+    @PreUpdate
+    private void validateOnUpdate() {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+        if (message == null || message.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message cannot be empty");
+        }
+        if (recipientsCount < 0) {
+            throw new IllegalArgumentException("Recipients count must be zero or positive");
+        }
     }
 }
