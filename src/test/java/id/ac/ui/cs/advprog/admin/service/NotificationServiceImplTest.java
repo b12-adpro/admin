@@ -23,12 +23,12 @@ import static org.mockito.Mockito.*;
 class NotificationServiceImplTest {
 
     @Mock
-    private NotificationRepository notificationRepository;  // Mock repository interface
+    private NotificationRepository notificationRepository;
 
     @Mock
-    private NotificationPublisher notificationPublisher; // Mock strategy interface
+    private NotificationPublisher notificationPublisher;
 
-    private NotificationServiceImpl notificationService;  // Service to be tested
+    private NotificationServiceImpl notificationService;
 
     @Mock
     private UserService userService;
