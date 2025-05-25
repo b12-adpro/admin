@@ -16,4 +16,5 @@ public interface UserService {
     List<UserDTO> getAllActiveUsers();
     int countAllUsers();
     int countUsersByRole(UserRole role);
+    String getDonaturName(UUID donaturId);
 }

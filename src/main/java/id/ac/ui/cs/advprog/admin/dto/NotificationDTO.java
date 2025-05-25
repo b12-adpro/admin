@@ -15,5 +15,5 @@ public class NotificationDTO {
     private String title;
     private String message;
     private LocalDateTime createdAt;
-    private int recipientsCount;
+    private Integer recipientsCount;
 }

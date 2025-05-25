@@ -1,9 +1,7 @@
 package id.ac.ui.cs.advprog.admin.controller;
 
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
-import id.ac.ui.cs.advprog.admin.dto.FundUsageProofDTO;
-import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
-import id.ac.ui.cs.advprog.admin.enums.CampaignVerificationStatus;
+import id.ac.ui.cs.advprog.admin.enums.Status;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +13,11 @@ import java.util.UUID;
 @RequestMapping("/admin/campaigns")
 public class CampaignController {
 
-    @Autowired
     private CampaignService campaignService;
+
+    public CampaignController(CampaignService campaignService) {
+        this.campaignService = campaignService;
+    }
 
     @GetMapping
     public List<CampaignDTO> getAllCampaigns() {
@@ -29,12 +30,12 @@ public class CampaignController {
     }
 
     @GetMapping("/campaignprogressstatus/{campaignprogressstatus}")
-    public List<CampaignDTO> getCampaignsByCampaignProgressStatus(@PathVariable CampaignProgressStatus campaignprogressstatus) {
+    public List<CampaignDTO> getCampaignsByCampaignProgressStatus(@PathVariable Status campaignprogressstatus) {
         return campaignService.getCampaignsByCampaignProgressStatus(campaignprogressstatus);
     }
 
     @GetMapping("/campaignverificationstatus/{campaignverificationstatus}")
-    public List<CampaignDTO> getCampaignsByCampaignVerificationStatus(@PathVariable CampaignVerificationStatus campaignverificationstatus) {
+    public List<CampaignDTO> getCampaignsByCampaignVerificationStatus(@PathVariable Status campaignverificationstatus) {
         return campaignService.getCampaignsByCampaignVerificationStatus(campaignverificationstatus);
     }
 
@@ -43,8 +44,8 @@ public class CampaignController {
         return campaignService.verifyCampaign(id, approve);
     }
 
-    @GetMapping("/{id}/fund-usage-proofs")
-    public List<FundUsageProofDTO> getFundUsageProofs(@PathVariable UUID id) {
-        return campaignService.getFundUsageProofsByCampaignId(id);
+    @GetMapping("/{campaignId}/fund-usage-proofs")
+    public String getFundUsageProofs(@PathVariable UUID campaignId) {
+        return campaignService.getFundUsageProofsByCampaignId(campaignId);
     }
 }

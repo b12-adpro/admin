@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,6 +17,6 @@ public class DonationHistoryDTO {
     private UUID donaturId;
     private String donaturName;
     private String campaignTitle;
-    private Double amount;
+    private BigDecimal amount;
     private LocalDateTime donatedAt;
 }

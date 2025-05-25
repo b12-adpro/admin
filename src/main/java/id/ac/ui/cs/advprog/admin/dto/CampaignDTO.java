@@ -1,26 +1,26 @@
 package id.ac.ui.cs.advprog.admin.dto;
 
-import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
-import id.ac.ui.cs.advprog.admin.enums.CampaignVerificationStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CampaignDTO {
-    private UUID id;
+    private UUID campaignId;
     private UUID fundraiserId;
     private String fundraiserName;
-    private String title;
-    private Double targetAmount;
-    private Double currentAmount;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private CampaignVerificationStatus verificationStatus;
-    private CampaignProgressStatus progressStatus;
+    private String judul;
+    private int target;
+    private int currentAmount;
+    private LocalDateTime datetime;
+    private String status;
+    private String deskripsi;
+    private String buktiPenggalanganDana;
 }
