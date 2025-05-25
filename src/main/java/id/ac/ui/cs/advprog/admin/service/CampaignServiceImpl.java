@@ -91,8 +91,6 @@ public class CampaignServiceImpl implements CampaignService {
             campaign.setCurrentAmount(calculateCurrentAmount(campaign.getCampaignId()));
             return refreshProgressStatus(campaign);
         } catch (HttpClientErrorException e) {
-            System.out.println("HTTP Status: " + e.getStatusCode());
-            System.out.println("Response body: " + e.getResponseBodyAsString());
             throw new NoSuchElementException("Campaign with id " + id + " not found");
         }
     }
@@ -166,19 +164,6 @@ public class CampaignServiceImpl implements CampaignService {
 
         return List.of(campaigns).stream()
                 .mapToDouble(CampaignDTO::getCurrentAmount)
-                .sum();
-    }
-
-    @Override
-    public double getTotalTargetAmount() {
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns == null || campaigns.length == 0) {
-            return 0.0;
-        }
-
-        return List.of(campaigns).stream()
-                .mapToDouble(CampaignDTO::getTarget)
                 .sum();
     }
 

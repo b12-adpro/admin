@@ -38,7 +38,7 @@ public class CampaignController {
         return campaignService.getCampaignsByCampaignVerificationStatus(campaignverificationstatus);
     }
 
-    @PutMapping("/{id}/verify")
+    @PostMapping("/{id}/verify")
     public CampaignDTO verifyCampaign(@PathVariable UUID id, @RequestParam boolean approve) {
         return campaignService.verifyCampaign(id, approve);
     }
