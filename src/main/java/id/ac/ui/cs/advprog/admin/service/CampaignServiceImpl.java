@@ -3,31 +3,67 @@ package id.ac.ui.cs.advprog.admin.service;
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
 import id.ac.ui.cs.advprog.admin.dto.DonationHistoryDTO;
 import id.ac.ui.cs.advprog.admin.enums.Status;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.math.BigDecimal;
-
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CampaignServiceImpl implements CampaignService {
 
-    private RestTemplate restTemplate;
-    private final DonationHistoryService donationHistoryService;
+    // Dummy storage untuk campaigns dan donations
+    private final Map<UUID, CampaignDTO> campaignStore = new HashMap<>();
+    private final Map<UUID, List<DonationHistoryDTO>> donationStore = new HashMap<>();
 
-    @Value("${external.campaign.api.url}")
-    private String campaignApiUrl;
+    public CampaignServiceImpl() {
+        // Initialize dummy data
+        initDummyData();
+    }
 
-    @Autowired
-    public CampaignServiceImpl(RestTemplate restTemplate, DonationHistoryService donationHistoryService) {
-        this.restTemplate = restTemplate;
-        this.donationHistoryService = donationHistoryService;
+    private void initDummyData() {
+        UUID c1 = UUID.randomUUID();
+        UUID c2 = UUID.randomUUID();
+
+        CampaignDTO campaign1 = new CampaignDTO();
+        campaign1.setCampaignId(c1);
+        campaign1.setJudul("Campaign 1");
+        campaign1.setStatus(Status.PENDING.name());
+        campaign1.setTarget(10000);
+        campaign1.setCurrentAmount(0);
+        campaign1.setBuktiPenggalanganDana("https://example.com/bukti1.jpg");
+        campaign1.setStatus(Status.PENDING.name());
+        campaignStore.put(c1, campaign1);
+
+        CampaignDTO campaign2 = new CampaignDTO();
+        campaign2.setCampaignId(c2);
+        campaign2.setJudul("Campaign 2");
+        campaign2.setStatus(Status.ACTIVE.name());
+        campaign2.setTarget(5000);
+        campaign2.setCurrentAmount(2000);
+        campaignStore.put(c2, campaign2);
+
+        donationStore.put(c1, new ArrayList<>());
+        donationStore.put(c2, new ArrayList<>(
+                List.of(new DonationHistoryDTO(
+                        c2,                    // campaignId
+                        UUID.randomUUID(),     // userId
+                        UUID.randomUUID(),     // paymentId
+                        "Dummy User",          // userName
+                        "Dummy Payment",       // paymentMethod
+                        new BigDecimal("2000"),// amount
+                        LocalDateTime.now()    // timestamp
+                ))
+        ));
+    }
+
+    private int calculateCurrentAmount(UUID campaignId) {
+        List<DonationHistoryDTO> donations = donationStore.getOrDefault(campaignId, Collections.emptyList());
+        return donations.stream()
+                .map(DonationHistoryDTO::getAmount)
+                .mapToInt(BigDecimal::intValue)
+                .sum();
     }
 
     private String calculateProgressStatus(CampaignDTO campaign) {
@@ -44,158 +80,88 @@ public class CampaignServiceImpl implements CampaignService {
         if (campaign.getStatus() == null) {
             campaign.setStatus(calculateProgressStatus(campaign));
         }
+        // update current amount from dummy donation store
+        campaign.setCurrentAmount(calculateCurrentAmount(campaign.getCampaignId()));
         return campaign;
     }
 
     @Override
     public String getCampaignDtoName(UUID campaignId) {
-        if (campaignId == null) {
-            throw new IllegalArgumentException("Campaign ID cannot be null");
+        CampaignDTO campaign = campaignStore.get(campaignId);
+        if (campaign == null) {
+            throw new NoSuchElementException("Campaign not found");
         }
-        return null;
-    }
-
-    private int calculateCurrentAmount(UUID campaignId) {
-        List<DonationHistoryDTO> donations = donationHistoryService.getDonationHistoryByCampaign(campaignId);
-
-        return donations.stream()
-                .map(DonationHistoryDTO::getAmount)
-                .mapToInt(BigDecimal::intValue)
-                .sum();
+        return campaign.getJudul();
     }
 
     @Override
     public List<CampaignDTO> getAllCampaigns() {
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns.length == 0) {
-            return new ArrayList<>();
-        }
-
-        return List.of(campaigns).stream()
-                .map(campaign -> {
-                    campaign.setCurrentAmount(calculateCurrentAmount(campaign.getCampaignId()));
-                    return refreshProgressStatus(campaign);
-                })
+        return campaignStore.values().stream()
+                .map(this::refreshProgressStatus)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CampaignDTO getCampaignDTOById(UUID id) {
-        try {
-            String url = campaignApiUrl + "/campaignId/" + id;
-            CampaignDTO campaign = restTemplate.getForObject(url, CampaignDTO.class);
-            if (campaign == null) {
-                throw new NoSuchElementException("Campaign not found");
-            }
-            campaign.setCurrentAmount(calculateCurrentAmount(campaign.getCampaignId()));
-            return refreshProgressStatus(campaign);
-        } catch (HttpClientErrorException e) {
-            System.out.println("HTTP Status: " + e.getStatusCode());
-            System.out.println("Response body: " + e.getResponseBodyAsString());
-            throw new NoSuchElementException("Campaign with id " + id + " not found");
+        CampaignDTO campaign = campaignStore.get(id);
+        if (campaign == null) {
+            throw new NoSuchElementException("Campaign not found");
         }
+        return refreshProgressStatus(campaign);
     }
 
     @Override
     public List<CampaignDTO> getCampaignsByCampaignProgressStatus(Status campaignProgressStatus) {
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-        System.out.println("Total campaigns: " + campaigns.length);
-
-        if (campaigns == null) return new ArrayList<>();
-
-        List<CampaignDTO> refreshedCampaigns = List.of(campaigns).stream()
+        return campaignStore.values().stream()
                 .map(this::refreshProgressStatus)
                 .filter(c -> campaignProgressStatus.name().equals(c.getStatus()))
                 .collect(Collectors.toList());
-
-        return refreshedCampaigns;
     }
 
     @Override
     public List<CampaignDTO> getCampaignsByCampaignVerificationStatus(Status verificationStatus) {
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns == null) return new ArrayList<>();
-
-        return List.of(campaigns).stream()
+        return campaignStore.values().stream()
                 .map(this::refreshProgressStatus)
-                .filter(c -> c.getStatus() != null &&
-                        verificationStatus.name().equals(c.getStatus()))
+                .filter(c -> c.getStatus() != null && verificationStatus.name().equals(c.getStatus()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public CampaignDTO verifyCampaign(UUID id, boolean approve) {
-        CampaignDTO campaign = getCampaignDTOById(id);
-        campaign.setStatus(approve ? "ACTIVE" : "INACTIVE");
-        restTemplate.put(campaignApiUrl + "/", campaign);
+        CampaignDTO campaign = campaignStore.get(id);
+        if (campaign == null) {
+            throw new NoSuchElementException("Campaign not found");
+        }
+        campaign.setStatus(approve ? Status.ACTIVE.name() : Status.INACTIVE.name());
+        campaignStore.put(id, campaign);
         return refreshProgressStatus(campaign);
     }
 
     @Override
     public long countCampaigns() {
-        return getAllCampaigns().size();
+        return campaignStore.size();
     }
 
     @Override
     public long countCampaignsByStatus(Status status) {
-        System.out.println("Calling: " + campaignApiUrl + "/all");
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns == null || campaigns.length == 0) {
-            System.out.println("Response is null or empty");
-            return 0;
-        }
-
-        System.out.println("Received " + campaigns.length + " campaigns");
-
-        return List.of(campaigns).stream()
-                .peek(c -> System.out.println("Campaign status: " + c.getStatus()))
-                .filter(c -> status.name().equals(c.getStatus())) // langsung bandingkan
+        return campaignStore.values().stream()
+                .filter(c -> status.name().equals(c.getStatus()))
                 .count();
     }
 
     @Override
     public double getTotalRaisedAmount() {
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns == null || campaigns.length == 0) {
-            return 0.0;
-        }
-
-        return List.of(campaigns).stream()
-                .mapToDouble(CampaignDTO::getCurrentAmount)
-                .sum();
-    }
-
-    @Override
-    public double getTotalTargetAmount() {
-        CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns == null || campaigns.length == 0) {
-            return 0.0;
-        }
-
-        return List.of(campaigns).stream()
-                .mapToDouble(CampaignDTO::getTarget)
+        return campaignStore.values().stream()
+                .mapToDouble(c -> c.getCurrentAmount())
                 .sum();
     }
 
     @Override
     public String getFundUsageProofsByCampaignId(UUID campaignId) {
-        try {
-            String url = campaignApiUrl + "/fund-usage-proofs/" + campaignId;
-            String result = restTemplate.getForObject(url, String.class);
-            if (result == null) {
-                throw new NoSuchElementException("Fund usage proof not found for campaign: " + campaignId);
-            }
-            return result;
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new NoSuchElementException("Fund usage proof not found for campaign: " + campaignId);
-            }
-            throw e;
+        if (!campaignStore.containsKey(campaignId)) {
+            throw new NoSuchElementException("Fund usage proof not found for campaign: " + campaignId);
         }
+        return "Dummy fund usage proof for campaign " + campaignId;
     }
+
 }

@@ -16,6 +16,5 @@ public interface CampaignService {
     long countCampaigns();
     long countCampaignsByStatus(Status status);
     double getTotalRaisedAmount();
-    double getTotalTargetAmount();
     String getFundUsageProofsByCampaignId(UUID campaignId);
 }

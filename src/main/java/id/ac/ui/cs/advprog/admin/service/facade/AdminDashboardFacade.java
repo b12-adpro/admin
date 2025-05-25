@@ -19,8 +19,11 @@ public class AdminDashboardFacade {
     public AdminDashboardStatsDTO getDashboardStats() {
         long totalCampaigns = campaignService.countCampaigns();
         long upcomingCampaigns = campaignService.countCampaignsByStatus(Status.PENDING);
+        System.out.println("Upcoming Campaigns: " + upcomingCampaigns);
         long activeCampaigns = campaignService.countCampaignsByStatus(Status.ACTIVE);
+        System.out.println("Active Campaigns: " + activeCampaigns);
         long completedCampaigns = campaignService.countCampaignsByStatus(Status.INACTIVE);
+        System.out.println("Completed Campaigns: " + completedCampaigns);
 
         int totalUsers = userService.countAllUsers();
 
