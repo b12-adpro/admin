@@ -36,12 +36,11 @@ class DonationHistoryServiceImplTest {
         userService = Mockito.mock(UserService.class);
         campaignService = Mockito.mock(CampaignService.class);
 
-        // Add the baseUrl parameter
         donationHistoryService = new DonationHistoryServiceImpl(
                 restTemplate,
                 userService,
                 campaignService,
-                API_URL  // Use the existing API_URL constant
+                API_URL
         );
     }
 

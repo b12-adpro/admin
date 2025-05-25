@@ -22,12 +22,10 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
     private final RestTemplate restTemplate;
     private final UserService userService;
     private final CampaignService campaignService;
-
-    @Value("${external.transaction.api.url}")
-    private String baseUrl;
+    private final String baseUrl;
 
     @Autowired
-    public DonationHistoryServiceImpl(RestTemplate restTemplate, @Lazy UserService userService, @Lazy CampaignService campaignService, String baseUrl) {
+    public DonationHistoryServiceImpl(RestTemplate restTemplate, @Lazy UserService userService, @Lazy CampaignService campaignService, @Value("${external.transaction.api.url}") String baseUrl) {
         this.restTemplate = restTemplate;
         this.userService = userService;
         this.campaignService = campaignService;
