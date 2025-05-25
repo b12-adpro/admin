@@ -13,7 +13,5 @@ public class AdminDashboardStatsDTO {
     private long activeCampaigns;
     private long completedCampaigns;
     private int totalUsers;
-    private int totalFundraisers;
-    private int totalDonaturs;
     private double totalDonations;
 }

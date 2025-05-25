@@ -45,8 +45,6 @@ class AdminDashboardFacadeTest {
         when(campaignService.countCampaignsByStatus(Status.INACTIVE)).thenReturn(3L);
 
         when(userService.countAllUsers()).thenReturn(100);
-        when(userService.countUsersByRole(UserRole.FUNDRAISER)).thenReturn(40);
-        when(userService.countUsersByRole(UserRole.DONATUR)).thenReturn(60);
 
         List<DonationHistoryDTO> dummyDonations = List.of(
                 mock(DonationHistoryDTO.class),
@@ -61,8 +59,6 @@ class AdminDashboardFacadeTest {
         assertEquals(5L, stats.getActiveCampaigns());
         assertEquals(3L, stats.getCompletedCampaigns());
         assertEquals(100, stats.getTotalUsers());
-        assertEquals(40, stats.getTotalFundraisers());
-        assertEquals(60, stats.getTotalDonaturs());
-        assertEquals(3L, stats.getTotalDonations()); // sesuai jumlah mock
+        assertEquals(3L, stats.getTotalDonations());
     }
 }

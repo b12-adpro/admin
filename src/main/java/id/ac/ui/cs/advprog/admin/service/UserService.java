@@ -15,6 +15,5 @@ public interface UserService {
     boolean isUserBlocked(UUID id);
     List<UserDTO> getAllActiveUsers();
     int countAllUsers();
-    int countUsersByRole(UserRole role);
     String getDonaturName(UUID donaturId);
 }
