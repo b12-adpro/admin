@@ -51,6 +51,7 @@ dependencies {
     testImplementation("io.github.bonigarcia:selenium-jupiter:$seleniumJupiterVersion")
     testImplementation("io.github.bonigarcia:webdrivermanager:$webdriverManagerVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
 
 tasks.register<Test>("uniTest") {
