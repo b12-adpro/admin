@@ -5,7 +5,6 @@ import id.ac.ui.cs.advprog.admin.enums.UserRole;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,6 +14,7 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl() {
 
+        // Ada yang diganti UUID / tambahin UUID
         dummyUsers.put("7e8725e7-c9d8-4176-a392-4c3897042990", UserDTO.builder().id(UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042990")).name("Siti").role(UserRole.DONATUR).isBlocked(false).build());
         dummyUsers.put("7e8725e7-c9d8-4176-a392-4c3897042991", UserDTO.builder().id(UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042991")).name("Budi").role(UserRole.FUNDRAISER).isBlocked(true).build());
         dummyUsers.put("7e8725e7-c9d8-4176-a392-4c3897042989", UserDTO.builder().id(UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042989")).name("Andi").role(UserRole.FUNDRAISER).isBlocked(false).build());
@@ -56,6 +56,16 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> !user.isBlocked())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public String getDonaturName(UUID donaturId) {
+        if (donaturId == null) {
+            return null;
+        }
+        UserDTO user = dummyUsers.get(donaturId.toString());
+        return user != null ? user.getName() : null;
+    }
+
 
     @Override
     public int countAllUsers() {

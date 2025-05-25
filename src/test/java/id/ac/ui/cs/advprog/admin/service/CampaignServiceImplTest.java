@@ -1,73 +1,175 @@
 package id.ac.ui.cs.advprog.admin.service;
 
-import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
-import id.ac.ui.cs.advprog.admin.enums.CampaignProgressStatus;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-
-import java.util.NoSuchElementException;
-import java.util.List;
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class CampaignServiceImplTest {
+import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
+import id.ac.ui.cs.advprog.admin.dto.DonationHistoryDTO;
+import id.ac.ui.cs.advprog.admin.enums.Status;
 
-    @Autowired
-    private CampaignService campaignService;
+import id.ac.ui.cs.advprog.admin.service.CampaignServiceImpl;
+import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
+public class CampaignServiceImplTest {
+
+    @Mock
+    private RestTemplate restTemplate;
+
+    @Mock
+    private DonationHistoryService donationHistoryService;
+
+    @InjectMocks
+    private CampaignServiceImpl campaignService;
+
+    private UUID campaignId;
+    private CampaignDTO sampleCampaign;
+
+    @BeforeEach
+    void setup() {
+        campaignId = UUID.randomUUID();
+
+        sampleCampaign = new CampaignDTO();
+        sampleCampaign.setCampaignId(campaignId);
+        sampleCampaign.setStatus(Status.PENDING.name());
+        sampleCampaign.setTarget(1000);
+        sampleCampaign.setCurrentAmount(0);
+    }
+
+    @Test
+    void testGetCampaignDTOById_success() {
+        when(restTemplate.getForObject(anyString(), eq(CampaignDTO.class)))
+                .thenReturn(sampleCampaign);
+
+        List<DonationHistoryDTO> donations = List.of(
+                createDonation(new BigDecimal("200")),
+                createDonation(new BigDecimal("300"))
+        );
+
+        when(donationHistoryService.getDonationHistoryByCampaign(campaignId)).thenReturn(donations);
+
+        CampaignDTO result = campaignService.getCampaignDTOById(campaignId);
+
+        assertNotNull(result);
+        assertEquals(Status.PENDING.name(), result.getStatus());
+        // currentAmount dihitung dari donation history (200 + 300)
+        assertEquals(500, result.getCurrentAmount());
+    }
+
+    @Test
+    void testGetCampaignDTOById_notFound() {
+        when(restTemplate.getForObject(anyString(), eq(CampaignDTO.class)))
+                .thenThrow(new HttpClientErrorException(org.springframework.http.HttpStatus.NOT_FOUND));
+
+        assertThrows(NoSuchElementException.class, () -> {
+            campaignService.getCampaignDTOById(campaignId);
+        });
+    }
 
     @Test
     void testGetAllCampaigns() {
-        List<CampaignDTO> campaigns = campaignService.getAllCampaigns();
-        assertEquals(3, campaigns.size());
+        CampaignDTO[] campaigns = new CampaignDTO[]{ sampleCampaign };
+
+        when(restTemplate.getForObject(anyString(), eq(CampaignDTO[].class))).thenReturn(campaigns);
+
+        List<DonationHistoryDTO> donations = List.of(createDonation(new BigDecimal("150")));
+        when(donationHistoryService.getDonationHistoryByCampaign(campaignId)).thenReturn(donations);
+
+        List<CampaignDTO> allCampaigns = campaignService.getAllCampaigns();
+
+        assertEquals(1, allCampaigns.size());
+        assertEquals(150, allCampaigns.get(0).getCurrentAmount());
+        assertEquals("PENDING", allCampaigns.get(0).getStatus()); // from calculateProgressStatus because status was PENDING
     }
 
     @Test
-    void testGetCampaignByIdSuccess() {
-        UUID campaignId = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042989"); // Gunakan UUID
-        CampaignDTO campaign = campaignService.getCampaignDTOById(campaignId);
-        assertEquals("Kampanye A", campaign.getTitle());
+    void testCountCampaignsByStatus() {
+        CampaignDTO c1 = new CampaignDTO();
+        c1.setStatus(Status.ACTIVE.name());
+
+        CampaignDTO c2 = new CampaignDTO();
+        c2.setStatus(Status.PENDING.name());
+
+        CampaignDTO[] campaigns = new CampaignDTO[]{ c1, c2 };
+
+        when(restTemplate.getForObject(anyString(), eq(CampaignDTO[].class))).thenReturn(campaigns);
+
+        long countActive = campaignService.countCampaignsByStatus(Status.ACTIVE);
+        assertEquals(1, countActive);
+
+        long countPending = campaignService.countCampaignsByStatus(Status.PENDING);
+        assertEquals(1, countPending);
     }
 
     @Test
-    void testGetCampaignDTOByIdNotFound() {
-        UUID nonExistentId = UUID.fromString("7e8725e7-c9d8-4176-a392-4c3897042999"); // Gunakan UUID
-        Exception exception = assertThrows(NoSuchElementException.class, () -> {
-            campaignService.getCampaignDTOById(nonExistentId);
-        });
-        assertEquals("Campaign not found", exception.getMessage());
-    }
+    void testVerifyCampaign_approve() {
+        when(restTemplate.getForObject(anyString(), eq(CampaignDTO.class))).thenReturn(sampleCampaign);
 
-    @Test
-    void testGetCampaignsByProgressStatus() {
-        List<CampaignDTO> activeCampaigns = campaignService.getCampaignsByCampaignProgressStatus(CampaignProgressStatus.ACTIVE);
-        assertEquals(1, activeCampaigns.size());
-        assertEquals("Kampanye A", activeCampaigns.get(0).getTitle());
-    }
-    @Test
-    void testCountCampaigns() {
-        assertEquals(3, campaignService.countCampaigns());
-    }
+        CampaignDTO updatedCampaign = campaignService.verifyCampaign(campaignId, true);
 
-    @Test
-    void testCountCampaignsByProgressStatus() {
-        long completedCount = campaignService.countCampaignsByStatus(CampaignProgressStatus.COMPLETED);
-        assertEquals(1, completedCount);
+        assertEquals("ACTIVE", updatedCampaign.getStatus());
+
+        verify(restTemplate).put(anyString(), any(CampaignDTO.class));
     }
 
     @Test
     void testGetTotalRaisedAmount() {
+        CampaignDTO c1 = new CampaignDTO();
+        c1.setCurrentAmount(100);
+
+        CampaignDTO c2 = new CampaignDTO();
+        c2.setCurrentAmount(200);
+
+        CampaignDTO[] campaigns = new CampaignDTO[]{ c1, c2 };
+        when(restTemplate.getForObject(anyString(), eq(CampaignDTO[].class))).thenReturn(campaigns);
+
         double totalRaised = campaignService.getTotalRaisedAmount();
-        assertEquals(25000.0, totalRaised);
+
+        assertEquals(300, totalRaised);
     }
 
     @Test
-    void testGetTotalTargetAmount() {
-        double totalTarget = campaignService.getTotalTargetAmount();
-        assertEquals(45000.0, totalTarget);
+    void testGetFundUsageProofsByCampaignId_success() {
+        String proofData = "Some proof data";
+        when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn(proofData);
+
+        String result = campaignService.getFundUsageProofsByCampaignId(campaignId);
+
+        assertEquals(proofData, result);
+    }
+
+    @Test
+    void testGetFundUsageProofsByCampaignId_notFound() {
+        when(restTemplate.getForObject(anyString(), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        assertThrows(NoSuchElementException.class, () -> {
+            campaignService.getFundUsageProofsByCampaignId(campaignId);
+        });
+    }
+
+    // Helper method to create DonationHistoryDTO
+    private DonationHistoryDTO createDonation(BigDecimal amount) {
+        return new DonationHistoryDTO(
+                UUID.randomUUID(),   // donationId
+                UUID.randomUUID(),   // campaignId
+                UUID.randomUUID(),   // userId
+                "John Doe",          // donorName
+                "Test message",      // message
+                amount,              // amount
+                LocalDateTime.now()  // timestamp
+        );
     }
 }

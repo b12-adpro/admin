@@ -18,14 +18,12 @@ public class NotificationTest {
         notification.setId(UUID.randomUUID());
         notification.setTitle("Pengumuman");
         notification.setMessage("Ada pembaruan sistem.");
-
-        // Simulate the @PrePersist lifecycle hook
-        notification.onCreate();
+        notification.onCreateAndValidate();
     }
 
     @Test
     void testNotificationFields() {
-        assertEquals(notification.getId(), notification.getId());
+        assertNotNull(notification.getId());
         assertEquals("Pengumuman", notification.getTitle());
         assertEquals("Ada pembaruan sistem.", notification.getMessage());
         assertNotNull(notification.getCreatedAt());
@@ -45,5 +43,15 @@ public class NotificationTest {
         LocalDateTime now = LocalDateTime.now();
         assertTrue(notification.getCreatedAt().isBefore(now.plusSeconds(1)));
         assertTrue(notification.getCreatedAt().isAfter(now.minusSeconds(5)));
+    }
+
+    @Test
+    void testValidationFailsForEmptyTitle() {
+        Notification notif = new Notification();
+        notif.setId(UUID.randomUUID());
+        notif.setTitle("");
+        notif.setMessage("Valid message");
+        Exception exception = assertThrows(IllegalArgumentException.class, notif::onCreateAndValidate);
+        assertEquals("Title cannot be empty", exception.getMessage());
     }
 }
