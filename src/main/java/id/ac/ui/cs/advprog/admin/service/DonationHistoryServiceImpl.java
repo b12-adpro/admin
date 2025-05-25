@@ -83,8 +83,8 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
     private DonationHistoryDTO mapToDonationHistoryDTO(DonationTransactionDTO dto) {
         UUID donaturId = dto.getWallet().getDonaturId();
         UUID campaignId = dto.getCampaignId();
-        String donaturName = userService.getDonaturName(donaturId); // TODO: Dummy
-        String campaignTitle = campaignService.getCampaignDtoName(campaignId); // TODO: Dummy
+        String donaturName = userService.getDonaturName(donaturId);
+        String campaignTitle = campaignService.getCampaignDtoName(campaignId);
 
         return DonationHistoryDTO.builder()
                 .id(dto.getId())
