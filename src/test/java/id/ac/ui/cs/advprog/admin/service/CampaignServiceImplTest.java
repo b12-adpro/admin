@@ -6,9 +6,6 @@ import static org.mockito.Mockito.*;
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
 import id.ac.ui.cs.advprog.admin.dto.DonationHistoryDTO;
 import id.ac.ui.cs.advprog.admin.enums.Status;
-
-import id.ac.ui.cs.advprog.admin.service.CampaignServiceImpl;
-import id.ac.ui.cs.advprog.admin.service.DonationHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +15,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 

@@ -3,7 +3,6 @@ package id.ac.ui.cs.advprog.admin.controller;
 import id.ac.ui.cs.advprog.admin.dto.CampaignDTO;
 import id.ac.ui.cs.advprog.admin.enums.Status;
 import id.ac.ui.cs.advprog.admin.service.CampaignService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class CampaignController {
         return campaignService.getCampaignsByCampaignVerificationStatus(campaignverificationstatus);
     }
 
-    @PostMapping("/{id}/verify")
+    @PutMapping("/{id}/verify")
     public CampaignDTO verifyCampaign(@PathVariable UUID id, @RequestParam boolean approve) {
         return campaignService.verifyCampaign(id, approve);
     }
