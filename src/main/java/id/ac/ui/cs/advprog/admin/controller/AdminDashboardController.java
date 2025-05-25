@@ -19,5 +19,3 @@ public class AdminDashboardController {
         return ResponseEntity.ok(adminDashboardFacade.getDashboardStats());
     }
 }
-
-
