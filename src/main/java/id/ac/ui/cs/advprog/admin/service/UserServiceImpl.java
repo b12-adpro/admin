@@ -23,6 +23,7 @@ public class UserServiceImpl implements UserService {
     @Value("${user.api.loginUrl}")
     private String apiLoginUrl;
 
+    @Value("${user.api.jwt.token}")
     private String jwtToken;
 
     @Value("${user.api.admin.email}")
@@ -44,6 +45,9 @@ public class UserServiceImpl implements UserService {
             ResponseEntity<Map> response = restTemplate.postForEntity(apiLoginUrl, entity, Map.class);
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 jwtToken = (String) response.getBody().get("token");
+                if (jwtToken == null) {
+                    throw new RuntimeException("Token not found in response");
+                }
             } else {
                 System.err.println("Login gagal: " + response.getStatusCode());
             }
@@ -57,22 +61,31 @@ public class UserServiceImpl implements UserService {
         authenticateAndStoreJwt();
     }
 
+    private HttpEntity<String> createAuthEntity() {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + jwtToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.HEAD,
+                    entity,
+                    Void.class
+            );
+
+            return entity;
+        } catch (Exception e) {
+            authenticateAndStoreJwt();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + jwtToken);
+            return new HttpEntity<>(headers);
+        }
+    }
 
     @Autowired
     public UserServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-
-    private HttpEntity<String> createAuthEntity() {
-        if (jwtToken == null || jwtToken.isEmpty()) {
-            authenticateAndStoreJwt();
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + jwtToken);
-        return new HttpEntity<>(headers);
-    }
-
 
     @Override
     public List<UserDTO> getAllUsers() {
