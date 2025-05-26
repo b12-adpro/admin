@@ -23,11 +23,11 @@ public class Notification {
     private UUID id;
 
     @NotBlank(message = "Title cannot be blank")
-    @Size(min = 5, message = "Judul minimum 5 karakter")
+    @Size(min = 2, message = "Judul minimum 2 karakter")
     private String title;
 
     @NotBlank(message = "Title cannot be blank")
-    @Size(min = 10, message = "Pesan minimum memiliki 10 karakter")
+    @Size(min = 2, message = "Pesan minimum memiliki 2 karakter")
     private String message;
     private LocalDateTime createdAt;
     private int recipientsCount;

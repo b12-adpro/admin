@@ -113,11 +113,10 @@ public class CampaignServiceImplTest {
     void testVerifyCampaign_approve() {
         when(restTemplate.getForObject(anyString(), eq(CampaignDTO.class))).thenReturn(sampleCampaign);
 
-        CampaignDTO updatedCampaign = campaignService.verifyCampaign(campaignId, true);
+        campaignService.verifyCampaign(campaignId, true);
 
-        assertEquals("ACTIVE", updatedCampaign.getStatus());
-
-        verify(restTemplate).put(anyString(), any(CampaignDTO.class));
+        verify(restTemplate).put(anyString(), isNull());
+        verify(restTemplate, times(2)).getForObject(anyString(), eq(CampaignDTO.class));
     }
 
     @Test
@@ -156,16 +155,15 @@ public class CampaignServiceImplTest {
         });
     }
 
-    // Helper method to create DonationHistoryDTO
     private DonationHistoryDTO createDonation(BigDecimal amount) {
         return new DonationHistoryDTO(
-                UUID.randomUUID(),   // donationId
-                UUID.randomUUID(),   // campaignId
-                UUID.randomUUID(),   // userId
-                "John Doe",          // donorName
-                "Test message",      // message
-                amount,              // amount
-                LocalDateTime.now()  // timestamp
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "John Doe",
+                "Test message",
+                amount,
+                LocalDateTime.now()
         );
     }
 }

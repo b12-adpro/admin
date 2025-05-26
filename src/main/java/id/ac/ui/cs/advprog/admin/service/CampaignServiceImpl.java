@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -85,9 +86,6 @@ public class CampaignServiceImpl implements CampaignService {
         try {
             String url = campaignApiUrl + "/campaignId/" + id;
             CampaignDTO campaign = restTemplate.getForObject(url, CampaignDTO.class);
-            if (campaign == null) {
-                throw new NoSuchElementException("Campaign not found");
-            }
             campaign.setCurrentAmount(calculateCurrentAmount(campaign.getCampaignId()));
             return refreshProgressStatus(campaign);
         } catch (HttpClientErrorException e) {
@@ -98,10 +96,6 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public List<CampaignDTO> getCampaignsByCampaignProgressStatus(Status campaignProgressStatus) {
         CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-        System.out.println("Total campaigns: " + campaigns.length);
-
-        if (campaigns == null) return new ArrayList<>();
-
         List<CampaignDTO> refreshedCampaigns = List.of(campaigns).stream()
                 .map(this::refreshProgressStatus)
                 .filter(c -> campaignProgressStatus.name().equals(c.getStatus()))
@@ -113,9 +107,6 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public List<CampaignDTO> getCampaignsByCampaignVerificationStatus(Status verificationStatus) {
         CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
-
-        if (campaigns == null) return new ArrayList<>();
-
         return List.of(campaigns).stream()
                 .map(this::refreshProgressStatus)
                 .filter(c -> c.getStatus() != null &&
@@ -126,10 +117,24 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public CampaignDTO verifyCampaign(UUID id, boolean approve) {
         CampaignDTO campaign = getCampaignDTOById(id);
-        campaign.setStatus(approve ? "ACTIVE" : "INACTIVE");
-        restTemplate.put(campaignApiUrl + "/", campaign);
-        return refreshProgressStatus(campaign);
+        if ((approve && campaign.getStatus().equals(Status.ACTIVE.name())) ||
+                (!approve && campaign.getStatus().equals(Status.INACTIVE.name()))) {
+            throw new IllegalStateException("Campaign is already in the desired status: " + campaign.getStatus());
+        }
+
+        String statusPath = approve ? "/activate" : "/inactivate";
+        String url = campaignApiUrl + "/" + id + statusPath;
+
+        try {
+            restTemplate.put(url, null);
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            throw new RuntimeException("Failed to update campaign status: " + ex.getResponseBodyAsString(), ex);
+        }
+
+        return getCampaignDTOById(id); // ambil ulang untuk status ter-update
     }
+
+
 
     @Override
     public long countCampaigns() {
@@ -138,19 +143,14 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public long countCampaignsByStatus(Status status) {
-        System.out.println("Calling: " + campaignApiUrl + "/all");
         CampaignDTO[] campaigns = restTemplate.getForObject(campaignApiUrl + "/all", CampaignDTO[].class);
 
         if (campaigns == null || campaigns.length == 0) {
-            System.out.println("Response is null or empty");
             return 0;
         }
 
-        System.out.println("Received " + campaigns.length + " campaigns");
-
         return List.of(campaigns).stream()
-                .peek(c -> System.out.println("Campaign status: " + c.getStatus()))
-                .filter(c -> status.name().equals(c.getStatus())) // langsung bandingkan
+                .filter(c -> status.name().equals(c.getStatus()))
                 .count();
     }
 

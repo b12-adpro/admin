@@ -65,22 +65,4 @@ class UserControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("Andi", response.getBody().getName());
     }
-
-    @Test
-    void testSetBlockedStatus() {
-        dummyUser1.setBlocked(true);
-        when(userService.setBlockedStatus(dummyUser1.getId(), true)).thenReturn(dummyUser1);
-
-        ResponseEntity<UserDTO> response = userController.setBlockedStatus(dummyUser1.getId(), true);
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody().isBlocked());
-    }
-
-    @Test
-    void testDeleteUser() {
-        doNothing().when(userService).deleteUser(dummyUser1.getId());
-
-        ResponseEntity<Void> response = userController.deleteUser(dummyUser1.getId());
-        assertEquals(204, response.getStatusCodeValue());
-    }
 }

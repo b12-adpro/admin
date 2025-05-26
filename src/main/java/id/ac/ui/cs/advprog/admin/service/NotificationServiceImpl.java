@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.admin.dto.NotificationDTO;
 import id.ac.ui.cs.advprog.admin.model.Notification;
 import id.ac.ui.cs.advprog.admin.repository.NotificationRepository;
 import id.ac.ui.cs.advprog.admin.service.observer.NotificationPublisher;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserService userService;
 
     @Override
+    @Transactional
     public NotificationDTO createNotification(String title, String message) {
         Notification notification = new Notification();
         notification.setTitle(title);
