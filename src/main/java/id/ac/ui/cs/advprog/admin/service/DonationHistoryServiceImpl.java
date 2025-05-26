@@ -20,26 +20,27 @@ import java.util.stream.Collectors;
 public class DonationHistoryServiceImpl implements DonationHistoryService {
 
     private final RestTemplate restTemplate;
-    private final UserService userService;
-    private final CampaignService campaignService;
     private final String baseUrl;
 
     @Autowired
     public DonationHistoryServiceImpl(RestTemplate restTemplate, @Lazy UserService userService, @Lazy CampaignService campaignService, @Value("${external.transaction.api.url}") String baseUrl) {
         this.restTemplate = restTemplate;
-        this.userService = userService;
-        this.campaignService = campaignService;
         this.baseUrl = baseUrl;
     }
 
     @Override
     public List<DonationHistoryDTO> getAllDonationHistories() {
-        String url = baseUrl;
+        String url = baseUrl + "/type?type=DONATION";
         List<DonationTransactionDTO> transactions = fetchTransactions(url);
 
         return transactions.stream()
-                .filter(tx -> "DONATION".equalsIgnoreCase(tx.getType()))
-                .map(this::mapToDonationHistoryDTO)
+                .map(tx -> {
+                    return DonationHistoryDTO.builder()
+                            .id(tx.getId())
+                            .amount(tx.getAmount())
+                            .donatedAt(tx.getTimestamp())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -49,7 +50,13 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
         List<DonationTransactionDTO> transactions = fetchTransactions(url);
 
         return transactions.stream()
-                .map(this::mapToDonationHistoryDTO)
+                .map(tx -> {
+                    return DonationHistoryDTO.builder()
+                            .id(tx.getId())
+                            .amount(tx.getAmount())
+                            .donatedAt(tx.getTimestamp())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -59,8 +66,13 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
         List<DonationTransactionDTO> transactions = fetchTransactions(url);
 
         return transactions.stream()
-                .filter(tx -> "DONATION".equalsIgnoreCase(tx.getType()))
-                .map(this::mapToDonationHistoryDTO)
+                .map(tx -> {
+                    return DonationHistoryDTO.builder()
+                            .id(tx.getId())
+                            .amount(tx.getAmount())
+                            .donatedAt(tx.getTimestamp())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -76,22 +88,5 @@ public class DonationHistoryServiceImpl implements DonationHistoryService {
         );
 
         return response.getBody().getData();
-    }
-
-    private DonationHistoryDTO mapToDonationHistoryDTO(DonationTransactionDTO dto) {
-        UUID donaturId = dto.getWallet().getDonaturId();
-        UUID campaignId = dto.getCampaignId();
-        String donaturName = userService.getDonaturName(donaturId);
-        String campaignTitle = campaignService.getCampaignDtoName(campaignId);
-
-        return DonationHistoryDTO.builder()
-                .id(dto.getId())
-                .campaignId(campaignId)
-                .donaturId(donaturId)
-                .donaturName(donaturName)
-                .campaignTitle(campaignTitle)
-                .amount(dto.getAmount())
-                .donatedAt(dto.getTimestamp())
-                .build();
     }
 }

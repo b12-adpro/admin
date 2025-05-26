@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.admin.service;
 
 import id.ac.ui.cs.advprog.admin.dto.UserDTO;
-import id.ac.ui.cs.advprog.admin.enums.UserRole;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -20,8 +20,43 @@ public class UserServiceImpl implements UserService {
     @Value("${user.api.url}")
     private String apiUrl;
 
-    @Value("${user.jwt.token}")
+    @Value("${user.api.loginUrl}")
+    private String apiLoginUrl;
+
     private String jwtToken;
+
+    @Value("${user.api.admin.email}")
+    private String adminEmail;
+
+    @Value("${user.api.admin.password}")
+    private String adminPassword;
+
+    private void authenticateAndStoreJwt() {
+        Map<String, String> loginRequest = new HashMap<>();
+        loginRequest.put("email", adminEmail);
+        loginRequest.put("password", adminPassword);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(loginRequest, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(apiLoginUrl, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                jwtToken = (String) response.getBody().get("token");
+            } else {
+                System.err.println("Login gagal: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            System.err.println("Gagal login: " + e.getMessage());
+        }
+    }
+
+    @PostConstruct
+    public void init() {
+        authenticateAndStoreJwt();
+    }
+
 
     @Autowired
     public UserServiceImpl(RestTemplate restTemplate) {
@@ -29,10 +64,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private HttpEntity<String> createAuthEntity() {
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            authenticateAndStoreJwt();
+        }
+
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", jwtToken);
+        headers.set("Authorization", "Bearer " + jwtToken);
         return new HttpEntity<>(headers);
     }
+
 
     @Override
     public List<UserDTO> getAllUsers() {
@@ -62,18 +102,6 @@ public class UserServiceImpl implements UserService {
         return getAllUsers().stream()
                 .filter(user -> user.getId().equals(id))
                 .findFirst();
-    }
-
-    @Override
-    public UserDTO setBlockedStatus(UUID id, boolean status) {
-        // Tidak didukung oleh API external (kecuali kamu punya endpoint PATCH/PUT)
-        throw new UnsupportedOperationException("setBlockedStatus is not supported without an API endpoint.");
-    }
-
-    @Override
-    public void deleteUser(UUID id) {
-        // Tidak didukung oleh API external (kecuali kamu punya endpoint DELETE)
-        throw new UnsupportedOperationException("deleteUser is not supported without an API endpoint.");
     }
 
     @Override

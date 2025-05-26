@@ -80,7 +80,7 @@ class DonationHistoryServiceImplTest {
         when(campaignService.getCampaignDtoName(any())).thenReturn("Test Campaign");
 
         // Mock server expectation - only once!
-        mockServer.expect(requestTo(API_URL))
+        mockServer.expect(requestTo(API_URL + "/type?type=DONATION"))
                 .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
         // Execute test
